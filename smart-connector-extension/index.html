@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/carbon-components.min.css" />
+    <link rel="stylesheet" href="icons/css/animation.css" />
+    <link rel="stylesheet" href="icons/css/extention.css" />
+    <link rel="stylesheet" href="css/main.css" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/workflow.js"></script>
+    <title>Extention</title>
+  </head>
+  <body>
+    <header>
+      <nav class="nav">
+        <div class="nav-title">
+          <a href="#" id="navBack"><i class="icon-btn-back"></i></a>
+          <h2 class="title">Campaign List</h2>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <ul data-progress data-progress-current class="bx--progress">
+        <li class="bx--progress-step bx--progress-step--current">
+          <svg>
+            <path d="M 7, 7 m -7, 0 a 7,7 0 1,0 14,0 a 7,7 0 1,0 -14,0"></path>
+          </svg>
+          <p tabindex="0" class="bx--progress-label">Step 1</p>
+          <span class="bx--progress-line"></span>
+        </li>
+
+        <li class="bx--progress-step bx--progress-step--incomplete">
+          <svg>
+            <path
+                    d="M8 1C4.1 1 1 4.1 1 8s3.1 7 7 7 7-3.1 7-7-3.1-7-7-7zm0 13c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z"
+            ></path>
+          </svg>
+          <p
+                  tabindex="0"
+                  class="bx--progress-label"
+                  aria-describedby="label-tooltipfddfl7tdjg4"
+          >
+            Step 2
+          </p>
+          <span class="bx--progress-line"></span>
+        </li>
+
+        <li class="bx--progress-step bx--progress-step--incomplete">
+          <svg>
+            <path
+                    d="M8 1C4.1 1 1 4.1 1 8s3.1 7 7 7 7-3.1 7-7-3.1-7-7-7zm0 13c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z"
+            ></path>
+          </svg>
+          <p
+                  tabindex="0"
+                  class="bx--progress-label"
+                  aria-describedby="label-tooltip9rv27he8c08"
+          >
+            Step 3
+          </p>
+          <span class="bx--progress-line"></span>
+        </li>
+
+        <li class="bx--progress-step bx--progress-step--incomplete">
+          <svg>
+            <path
+                    d="M8 1C4.1 1 1 4.1 1 8s3.1 7 7 7 7-3.1 7-7-3.1-7-7-7zm0 13c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z"
+            ></path>
+          </svg>
+          <p
+                  tabindex="0"
+                  class="bx--progress-label"
+                  aria-describedby="label-tooltip9rv27he8c08"
+          >
+            Step 4
+          </p>
+          <span class="bx--progress-line"></span>
+        </li>
+      </ul>
+      <div id="campaign-list">
+        <div class="main-campaign__title">
+          <p>Select Campaign</p>
+        </div>
+        <ul class="main-campaign__list">
+        </ul>
+      </div>
+      <div id="campaign-name-step">
+        <div class="main-input">
+          <div class="bx--form-item bx--text-input-wrapper">
+            <label for="campaign-name" class="bx--label"
+            >Please enter Campaign Name</label
+            >
+            <div class="bx--text-input__field-wrapper">
+              <input
+                      id="campaign-name"
+                      type="text"
+                      class="bx--text-input"
+                      placeholder="My New Campaign"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="messages-step">
+        <div class="main-checkbox">
+          <div class="bx--form-item bx--checkbox-wrapper">
+            <input
+                    id="bx--checkbox-new"
+                    class="bx--checkbox keep-sending-messages"
+                    type="checkbox"
+                    value="new"
+                    name="checkbox"
+            />
+            <label for="bx--checkbox-new" class="bx--checkbox-label"
+            >Keep sending messages even if replied</label
+            >
+          </div>
+        </div>
+        <div class="main-input">
+          <div class="bx--form-item">
+            <div class="bx--dropdown__wrapper">
+              <p class="dropdown-label">Connection request message</p>
+            </div>
+          </div>
+        </div>
+        <div class="main-text-area" id="connection-message">
+          <div data-dropdown data-value class="bx--dropdown">
+            <button
+                    class="bx--dropdown-text"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    aria-controls="personalize-message-menu"
+                    aria-labelledby="personalize-message personalize-message-value"
+                    type="button"
+            >
+                <span
+                        class="bx--dropdown-text__inner"
+                        id="personalize-message-value"
+                >
+                  Personalize
+                </span>
+                <span class="bx--dropdown__arrow-container">
+                  <svg
+                          focusable="false"
+                          preserveAspectRatio="xMidYMid meet"
+                          style="will-change: transform"
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="bx--dropdown__arrow"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          aria-hidden="true"
+                  >
+                    <path d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"></path>
+                  </svg>
+                </span>
+            </button>
+            <ul
+                    class="bx--dropdown-list personalize_message"
+                    id="personalize-message-menu"
+                    role="menu"
+                    tabindex="0"
+                    id="personalize-message-menu"
+                    aria-hidden="true"
+                    wh-menu-anchor="left"
+                    aria-labelledby="personalize_message-label"
+            >
+              <li
+                      data-option
+                      data-value="first_name"
+                      class="bx--dropdown-item"
+                      title="First Name"
+              >
+                <a
+                        class="bx--dropdown-link"
+                        href="#"
+                        tabindex="-1"
+                        role="menuitemradio"
+                        aria-checked="true"
+                        id="first_name-message-snippet"
+                        data-value="first_name"
+                >First name</a
+                >
+              </li>
+              <li
+                      data-option
+                      data-value="last_name"
+                      class="bx--dropdown-item"
+                      title="Last Name"
+              >
+                <a
+                        class="bx--dropdown-link"
+                        href="#"
+                        tabindex="-1"
+                        role="menuitemradio"
+                        aria-checked="false"
+                        id="last_name-message-snippet"
+                        data-value="last_name"
+                >Last name</a
+                >
+              </li>
+              <li
+                      data-option
+                      data-value="full_name"
+                      class="bx--dropdown-item"
+                      title="Full Name"
+              >
+                <a
+                        class="bx--dropdown-link"
+                        href="#"
+                        tabindex="-1"
+                        role="menuitemradio"
+                        aria-checked="false"
+                        id="fullname-message-snippet"
+                        data-value="full_name"
+                >Full name</a
+                >
+              </li>
+              <li
+                      data-option
+                      data-value="company"
+                      class="bx--dropdown-item"
+                      title="Company"
+              >
+                <a
+                        class="bx--dropdown-link"
+                        href="#"
+                        tabindex="-1"
+                        role="menuitemradio"
+                        aria-checked="false"
+                        id="company-message-snippet"
+                        data-value="company"
+                >Company</a
+                >
+              </li>
+              <li
+                      data-option
+                      data-value="custom_snippet_1"
+                      class="bx--dropdown-item"
+                      title="Custom Snippet 1"
+              >
+                <a
+                        class="bx--dropdown-link"
+                        href="#"
+                        tabindex="-1"
+                        role="menuitemradio"
+                        aria-checked="false"
+                        id="custom-snippet-1-message-snippet"
+                        data-value="custom_snippet_1"
+                >Custom Snippet 1</a
+                >
+              </li>
+              <li
+                      data-option
+                      data-value="custom_snippet_2"
+                      class="bx--dropdown-item"
+                      title="Custom Snippet 2"
+              >
+                <a
+                        class="bx--dropdown-link"
+                        href="#"
+                        tabindex="-1"
+                        role="menuitemradio"
+                        aria-checked="false"
+                        id="custom-snippet-2-message-snippet"
+                        data-value="custom_snippet_2"
+                >Custom Snippet 2</a
+                >
+              </li>
+              <li
+                      data-option
+                      data-value="custom_snippet_3"
+                      class="bx--dropdown-item"
+                      title="Custom Snippet 3"
+              >
+                <a
+                        class="bx--dropdown-link"
+                        href="#"
+                        tabindex="-1"
+                        role="menuitemradio"
+                        aria-checked="false"
+                        id="custom-snippet-3-message-snippet"
+                        data-value="custom_snippet_3"
+                >Custom Snippet 3</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div class="bx--form-item textarea">
+            <label for="text-area-2" class="bx--label">0/100</label>
+            <div class="bx--text-area__wrapper">
+            <textarea
+                    id="text-area-2"
+                    class="bx--text-area bx--text-area--v2"
+                    rows="4"
+                    cols="50"
+                    placeholder="Text"
+            ></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="main-message__desc-block">
+          <p class="message">Add some messages to be sent automatically to those who accepted connection request. This can increase your reply rate by up to 60%.</p>
+          <p class="message">Messages to the 1st degree connections</p>
+        </div>
+        <div class="main-send__after">
+          <p class="send-schedule-title"></p>
+          <div class="bx--form-item number">
+            <div data-numberinput class="bx--number">
+              <div class="bx--number__input-wrapper">
+                <input
+                        class="send-in-days"
+                        type="number"
+                        min="0"
+                        max="100"
+                        value="1"
+                />
+
+                <div class="bx--number__controls">
+                  <button
+                          aria-label="increase number input"
+                          class="bx--number__control-btn up-icon"
+                          type="button"
+                          aria-live="polite"
+                          aria-atomic="true"
+                  >
+                    <svg
+                            focusable="false"
+                            preserveAspectRatio="xMidYMid meet"
+                            style="will-change: transform"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="8"
+                            height="4"
+                            viewBox="0 0 8 4"
+                            aria-hidden="true"
+                    >
+                      <path d="M0 4L4 0 8 4z"></path>
+                    </svg>
+                  </button>
+                  <button
+                          aria-label="decrease number input"
+                          class="bx--number__control-btn down-icon"
+                          type="button"
+                          aria-live="polite"
+                          aria-atomic="true"
+                  >
+                    <svg
+                            focusable="false"
+                            preserveAspectRatio="xMidYMid meet"
+                            style="will-change: transform"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="8"
+                            height="4"
+                            viewBox="0 0 8 4"
+                            aria-hidden="true"
+                    >
+                      <path d="M8 0L4 4 0 0z"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="main-checkbox">
+              <div class="bx--form-item bx--checkbox-wrapper">
+                <input
+                        class="bx--checkbox send-immediately-when-replied"
+                        type="checkbox"
+                        value="new"
+                        name="checkbox"
+                />
+                <label class="bx--checkbox-label"
+                >Send immediately when replied
+                </label>
+              </div>
+            </div>
+          </div>
+          <a href="#" class="remove-followup"><i class="icon-trash"></i></a>
+        </div>
+        <div class="main-button-block">
+          <button class="btn btn-long-add" id="add-follow-up">
+            Add Message <i class="icon-plus"></i>
+          </button>
+        </div>
+      </div>
+      <div id="search-people-step">
+        <div class="main-finish-block">
+          <div class="main-finish__buttons">
+            <a href="#" class="btn btn-next" id="add-people-from-linkedin-search"> Add People From LinkedIn Search</a>
+            <a href="#" class="btn btn-prev" id="add-people-from-sales-navigator"> Add People From Sales Navigator</a>
+            <a href="#" class="btn btn-prev" id="show-linkedin-search"> Show Linkedin Filters</a>
+            <a href="#" class="btn btn-prev" id="apply-linkedin-search"> Apply Linkedin Filters</a>
+            <a href="#" class="btn btn-next" id="collect-people"> Start Collecting People</a>
+          </div>
+
+          <!--
+          <span class="or">or</span>
+          <a
+                  href="#"
+                  class="upload-people-csv"
+          >
+            Have a CSV file with your prospects' <br />
+            Linkedin profile urls?
+            <br />
+            <span>Choose one</span>
+          </a>
+          -->
+          <div
+                  data-modal
+                  id="modal-map-people-csv"
+                  class="bx--modal"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="modal-map-people-csv-label"
+                  aria-describedby="modal-map-people-csv-heading"
+                  tabindex="-1"
+          >
+            <div class="bx--modal-container bx--modal-container--sm">
+              <div class="bx--modal-header">
+                <p
+                        class="bx--modal-header__label bx--type-delta"
+                        id="modal-map-people-csv-label"
+                >
+                  MAP CSV columns
+                </p>
+                <p
+                        class="bx--modal-header__heading bx--type-beta"
+                        id="modal-map-people-csv-heading"
+                >
+                  Help us understand your data. For each field, <br />
+                  choose the corresponding column from the CSV
+                </p>
+                <button
+                        class="bx--modal-close"
+                        type="button"
+                        data-modal-close
+                        aria-label="close modal"
+                >
+                  <svg
+                          focusable="false"
+                          preserveAspectRatio="xMidYMid meet"
+                          style="will-change: transform"
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="bx--modal-close__icon"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          aria-hidden="true"
+                  >
+                    <path
+                            d="M12 4.7L11.3 4 8 7.3 4.7 4 4 4.7 7.3 8 4 11.3 4.7 12 8 8.7 11.3 12 12 11.3 8.7 8z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Note: Modals with content that scrolls, at any viewport, requires `tabindex="0"` on the `bx--modal-content` element -->
+
+              <div class="bx--modal-content">
+                <div class="bx--form-item">
+                  <div class="bx--dropdown__wrapper">
+                    <span id="profile-column-label" class="bx--label"
+                      >Profile URL Column</span
+                    >
+                    <div data-dropdown data-value class="bx--dropdown">
+                      <button
+                              class="bx--dropdown-text"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                              aria-controls="public_id-column-menu"
+                              aria-labelledby="public_id-column-label public_id-column-value"
+                              type="button"
+                      >
+                        <span
+                                class="bx--dropdown-text__inner"
+                                id="public_id-column-value"
+                        >
+                        </span>
+                        <span class="bx--dropdown__arrow-container">
+                          <svg
+                                  focusable="false"
+                                  preserveAspectRatio="xMidYMid meet"
+                                  style="will-change: transform"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  class="bx--dropdown__arrow"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  aria-hidden="true"
+                          >
+                            <path
+                                    d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                            ></path>
+                          </svg>
+                        </span>
+                      </button>
+                      <ul
+                              class="bx--dropdown-list"
+                              role="menu"
+                              tabindex="0"
+                              id="public_id-column-menu"
+                              aria-hidden="true"
+                              wh-menu-anchor="left"
+                              aria-labelledby="public_id-column-label"
+                      >
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="bx--form-item">
+                  <div class="bx--dropdown__wrapper">
+                    <span id="first-name-column-label" class="bx--label"
+                    >First Name Column (optional)</span
+                    >
+                    <div data-dropdown data-value class="bx--dropdown">
+                      <button
+                              class="bx--dropdown-text"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                              aria-controls="first_name-column-menu"
+                              aria-labelledby="first_name-column-label first_name-column-value"
+                              type="button"
+                      >
+                        <span
+                                class="bx--dropdown-text__inner"
+                                id="first_name-column-value"
+                        >
+                        </span>
+                        <span class="bx--dropdown__arrow-container">
+                          <svg
+                                  focusable="false"
+                                  preserveAspectRatio="xMidYMid meet"
+                                  style="will-change: transform"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  class="bx--dropdown__arrow"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  aria-hidden="true"
+                          >
+                            <path
+                                    d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                            ></path>
+                          </svg>
+                        </span>
+                      </button>
+                      <ul
+                              class="bx--dropdown-list"
+                              role="menu"
+                              tabindex="0"
+                              id="first_name-column-menu"
+                              aria-hidden="true"
+                              wh-menu-anchor="left"
+                              aria-labelledby="first_name-column-label"
+                      >
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="bx--form-item">
+                  <div class="bx--dropdown__wrapper">
+                    <span id="last-name-column-label" class="bx--label"
+                    >Last Name Column (optional)</span
+                    >
+                    <div data-dropdown data-value class="bx--dropdown">
+                      <button
+                              class="bx--dropdown-text"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                              aria-controls="last_name-column-menu"
+                              aria-labelledby="last_name-column-label last_name-column-value"
+                              type="button"
+                      >
+                        <span
+                                class="bx--dropdown-text__inner"
+                                id="last_name-column-value"
+                        >
+                        </span>
+                        <span class="bx--dropdown__arrow-container">
+                          <svg
+                                  focusable="false"
+                                  preserveAspectRatio="xMidYMid meet"
+                                  style="will-change: transform"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  class="bx--dropdown__arrow"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  aria-hidden="true"
+                          >
+                            <path
+                                    d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                            ></path>
+                          </svg>
+                        </span>
+                      </button>
+                      <ul
+                              class="bx--dropdown-list"
+                              role="menu"
+                              tabindex="0"
+                              id="last_name-column-menu"
+                              aria-hidden="true"
+                              wh-menu-anchor="left"
+                              aria-labelledby="last_name-column-label"
+                      >
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="bx--form-item">
+                  <div class="bx--dropdown__wrapper">
+                    <span id="company-column-label" class="bx--label"
+                    >Company Column (optional)</span
+                    >
+                    <div data-dropdown data-value class="bx--dropdown">
+                      <button
+                              class="bx--dropdown-text"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                              aria-controls="company-column-menu"
+                              aria-labelledby="company-column-label company-column-value"
+                              type="button"
+                      >
+                        <span
+                                class="bx--dropdown-text__inner"
+                                id="company-column-value"
+                        >
+                        </span>
+                        <span class="bx--dropdown__arrow-container">
+                          <svg
+                                  focusable="false"
+                                  preserveAspectRatio="xMidYMid meet"
+                                  style="will-change: transform"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  class="bx--dropdown__arrow"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  aria-hidden="true"
+                          >
+                            <path
+                                    d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                            ></path>
+                          </svg>
+                        </span>
+                      </button>
+                      <ul
+                              class="bx--dropdown-list"
+                              role="menu"
+                              tabindex="0"
+                              id="company-column-menu"
+                              aria-hidden="true"
+                              wh-menu-anchor="left"
+                              aria-labelledby="company-column-label"
+                      >
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="bx--form-item">
+                  <div class="bx--dropdown__wrapper">
+                    <span id="custom-snippet-1-column-label" class="bx--label"
+                    >Custom snippet 1 (optional)</span
+                    >
+                    <div data-dropdown data-value class="bx--dropdown">
+                      <button
+                              class="bx--dropdown-text"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                              aria-controls="custom_snippet_1-column-menu"
+                              aria-labelledby="custom_snippet_1-column-label custom_snippet_1-column-value"
+                              type="button"
+                      >
+                        <span
+                                class="bx--dropdown-text__inner"
+                                id="custom_snippet_1-column-value"
+                        >
+                        </span>
+                        <span class="bx--dropdown__arrow-container">
+                          <svg
+                                  focusable="false"
+                                  preserveAspectRatio="xMidYMid meet"
+                                  style="will-change: transform"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  class="bx--dropdown__arrow"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  aria-hidden="true"
+                          >
+                            <path
+                                    d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                            ></path>
+                          </svg>
+                        </span>
+                      </button>
+                      <ul
+                              class="bx--dropdown-list"
+                              role="menu"
+                              tabindex="0"
+                              id="custom_snippet_1-column-menu"
+                              aria-hidden="true"
+                              wh-menu-anchor="left"
+                              aria-labelledby="custom_snippet_1-column-label"
+                      >
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="bx--form-item">
+                  <div class="bx--dropdown__wrapper">
+                    <span id="custom-snippet-2-column-label" class="bx--label"
+                    >Custom snippet 2 (optional)</span
+                    >
+                    <div data-dropdown data-value class="bx--dropdown">
+                      <button
+                              class="bx--dropdown-text"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                              aria-controls="custom_snippet_2-column-menu"
+                              aria-labelledby="custom_snippet_2-column-label custom_snippet_2-column-value"
+                              type="button"
+                      >
+                        <span
+                                class="bx--dropdown-text__inner"
+                                id="custom_snippet_2-column-value"
+                        >
+                        </span>
+                        <span class="bx--dropdown__arrow-container">
+                          <svg
+                                  focusable="false"
+                                  preserveAspectRatio="xMidYMid meet"
+                                  style="will-change: transform"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  class="bx--dropdown__arrow"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  aria-hidden="true"
+                          >
+                            <path
+                                    d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                            ></path>
+                          </svg>
+                        </span>
+                      </button>
+                      <ul
+                              class="bx--dropdown-list"
+                              role="menu"
+                              tabindex="0"
+                              id="custom_snippet_2-column-menu"
+                              aria-hidden="true"
+                              wh-menu-anchor="left"
+                              aria-labelledby="custom_snippet_2-column-label"
+                      >
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="bx--form-item">
+                  <div class="bx--dropdown__wrapper">
+                    <span id="custom-snippet-3-column-label" class="bx--label"
+                    >Custom snippet 3 (optional)</span
+                    >
+                    <div data-dropdown data-value class="bx--dropdown">
+                      <button
+                              class="bx--dropdown-text"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                              aria-controls="custom_snippet_3-column-menu"
+                              aria-labelledby="custom_snippet_3-column-label custom_snippet_3-column-value"
+                              type="button"
+                      >
+                        <span
+                                class="bx--dropdown-text__inner"
+                                id="custom_snippet_3-column-value"
+                        >
+                        </span>
+                        <span class="bx--dropdown__arrow-container">
+                          <svg
+                                  focusable="false"
+                                  preserveAspectRatio="xMidYMid meet"
+                                  style="will-change: transform"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  class="bx--dropdown__arrow"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  aria-hidden="true"
+                          >
+                            <path
+                                    d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                            ></path>
+                          </svg>
+                        </span>
+                      </button>
+                      <ul
+                              class="bx--dropdown-list"
+                              role="menu"
+                              tabindex="0"
+                              id="custom_snippet_3-column-menu"
+                              aria-hidden="true"
+                              wh-menu-anchor="left"
+                              aria-labelledby="custom_snippet_3-column-label"
+                      >
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="bx--modal-content--overflow-indicator"></div>
+
+              <div class="bx--modal-footer">
+                <button
+                        class="bx--btn bx--btn--secondary"
+                        type="button"
+                        data-modal-close
+                >
+                  Cancel
+                </button>
+                <button
+                        class="bx--btn bx--btn--primary import"
+                        type="button"
+                        data-modal-primary-focus
+                >
+                  Import
+                </button>
+              </div>
+            </div>
+            <!-- Note: focusable span allows for focus wrap feature within Modals -->
+            <span tabindex="0"></span>
+          </div>
+
+        </div>
+      </div>
+      <div id="people-step">
+        <section class="result">
+          <!--<p class="result-found">
+            Result found: <span class="result-found__number">0</span>
+          </p> -->
+          <p class="result-collected">
+            Collected: <span class="result-collected__number">0</span>
+          </p>
+        </section>
+        <section class="users">
+          <table class="table collection">
+            <thead>
+            <tr>
+              <th class="name">Name</th>
+              <th class="company">Company</th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody class="user-body__list">
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <!-- User modal -->
+      <div
+              data-modal
+              id="modal-user"
+              class="modal-user bx--modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-gbqytw2afas-label"
+              aria-describedby="modal-gbqytw2afas-heading"
+              tabindex="-1"
+      >
+        <div class="bx--modal-container bx--modal-container--sm">
+          <div class="bx--modal-header">
+            <button
+                    class="bx--modal-close"
+                    type="button"
+                    data-modal-close
+                    aria-label="close modal"
+            >
+              <svg
+                      focusable="false"
+                      preserveAspectRatio="xMidYMid meet"
+                      style="will-change: transform"
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="bx--modal-close__icon"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      aria-hidden="true"
+              >
+                <path
+                        d="M12 4.7L11.3 4 8 7.3 4.7 4 4 4.7 7.3 8 4 11.3 4.7 12 8 8.7 11.3 12 12 11.3 8.7 8z"
+                ></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Note: Modals with content that scrolls, at any viewport, requires `tabindex="0"` on the `bx--modal-content` element -->
+
+          <div class="bx--modal-content">
+            <div class="initials-block">
+              <div class="bx--form-item bx--text-input-wrapper">
+                <label for="text-input-3" class="bx--label">First Name</label>
+                <div class="bx--text-input__field-wrapper">
+                  <input
+                          id="modal-profile-first_name"
+                          type="text"
+                          class="bx--text-input"
+                          placeholder=""
+                  />
+                </div>
+              </div>
+              <div class="bx--form-item bx--text-input-wrapper">
+                <label for="text-input-3" class="bx--label">Last Name</label>
+                <div class="bx--text-input__field-wrapper">
+                  <input
+                          id="modal-profile-last_name"
+                          type="text"
+                          class="bx--text-input"
+                          placeholder=""
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="company-block">
+              <div class="bx--form-item bx--text-input-wrapper">
+                <label for="text-input-3" class="bx--label">Company</label>
+                <div class="bx--text-input__field-wrapper">
+                  <input
+                          id="modal-profile-company"
+                          type="text"
+                          class="bx--text-input"
+                          placeholder=""
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="job-title-block">
+              <div class="bx--form-item bx--text-input-wrapper">
+                <label for="text-input-3" class="bx--label">Job Title</label>
+                <div class="bx--text-input__field-wrapper">
+                  <input
+                          id="modal-profile-job_title"
+                          type="text"
+                          class="bx--text-input"
+                          placeholder=""
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="custom-block">
+              <div class="bx--form-item bx--text-input-wrapper">
+                <label for="text-input-3" class="bx--label"></label>
+                <div class="bx--text-input__field-wrapper">
+                  <input
+                          id="modal-profile-custom_snippet_1"
+                          type="text"
+                          class="bx--text-input"
+                          placeholder="Custom Snippet 1"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="custom-block">
+              <div class="bx--form-item bx--text-input-wrapper">
+                <label for="text-input-3" class="bx--label"></label>
+                <div class="bx--text-input__field-wrapper">
+                  <input
+                          id="modal-profile-custom_snippet_2"
+                          type="text"
+                          class="bx--text-input"
+                          placeholder="Custom Snippet 2"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="custom-block">
+              <div class="bx--form-item bx--text-input-wrapper">
+                <label for="text-input-3" class="bx--label"></label>
+                <div class="bx--text-input__field-wrapper">
+                  <input
+                          id="modal-profile-custom_snippet_3"
+                          type="text"
+                          class="bx--text-input"
+                          placeholder="Custom Snippet 3"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="button-block">
+              <button class="btn btn-open-profile">Open Profile</button>
+              <button class="btn btn-conversation">Go To Conversation</button>
+              <button class="btn btn-withdraw">Withdraw Invitation And Delete</button>
+            </div>
+          </div>
+          <div class="bx--modal-content--overflow-indicator"></div>
+
+          <div class="bx--modal-footer">
+            <button class="bx--btn bx--btn--secondary btn-exclude" type="button">
+              DELETE
+            </button>
+            <button
+                    class="bx--btn bx--btn--secondary"
+                    type="button"
+                    data-modal-close
+            >
+              Cancel
+            </button>
+            <button
+                    class="bx--btn bx--btn--primary save"
+                    type="button"
+                    data-modal-primary-focus
+            >
+              Save
+            </button>
+          </div>
+        </div>
+        <!-- Note: focusable span allows for focus wrap feature within Modals -->
+        <span tabindex="0"></span>
+      </div>
+
+      <div id="campaign-detail">
+        <section class="tabs">
+          <div data-tabs class="bx--tabs">
+            <div class="bx--tabs-trigger" tabindex="0">
+              <a
+                      href="#"
+                      class="bx--tabs-trigger-text"
+                      tabindex="-1"
+              ></a>
+              <svg
+                      focusable="false"
+                      preserveAspectRatio="xMidYMid meet"
+                      style="will-change: transform"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      aria-hidden="true"
+              >
+                <path d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"></path>
+              </svg>
+            </div>
+            <ul class="bx--tabs__nav bx--tabs__nav--hidden" role="tablist">
+              <li
+                      class="bx--tabs__nav-item bx--tabs__nav-item--selected"
+                      data-target=".tab-1-default"
+                      role="tab"
+                      aria-selected="true"
+              >
+                <a
+                        tabindex="0"
+                        id="tab-link-1-default"
+                        class="bx--tabs__nav-link"
+                        href="#"
+                        role="tab"
+                        aria-controls="tab-panel-activity-default"
+                        tab-id="activity"
+                >Activity</a
+                >
+              </li>
+              <li
+                      class="bx--tabs__nav-item"
+                      data-target=".tab-2-default"
+                      role="tab"
+              >
+                <a
+                        tabindex="0"
+                        id="tab-link-2-default"
+                        class="bx--tabs__nav-link"
+                        href="#"
+                        role="tab"
+                        aria-controls="tab-panel-messages-default"
+                        tab-id="messages"
+                >Messages</a
+                >
+              </li>
+              <li
+                      class="bx--tabs__nav-item"
+                      data-target=".tab-3-default"
+                      role="tab"
+              >
+                <a
+                        tabindex="0"
+                        id="tab-link-3-default"
+                        class="bx--tabs__nav-link"
+                        href="#"
+                        role="tab"
+                        aria-controls="tab-panel-people-default"
+                        tab-id="people"
+                >People</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div class="bx--tab-content">
+            <div
+                    id="tab-panel-activiti-default"
+                    class="tab-1-default"
+                    role="tabpanel"
+                    aria-labelledby="tab-link-1-default"
+                    aria-hidden="false"
+            >
+              <div>
+                <div class="time-stats">
+                  <div class="time-stats__desc" style="display: flex; justify-content: space-around; margin-bottom: 20px;">
+                    <div style="display: flex; flex-direction: column; align-items: center;">Connections</div>
+                    <div style="display: flex; flex-direction: column;align-items: center;">Messages</div>
+                  </div>
+                </div>
+                <div class="time-stats-progress">
+                  <div class="stats-progress progress-connection-sent">
+                    <div class="clearfix">
+                      <!-- change class 'p12' to change percentage -- example 'p90'-->
+                      <div class="c100 p0 green">
+                        <span><number>0</number>%</span>
+                        <div class="slice">
+                          <div class="bar"></div>
+                          <div class="fill"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="stats-progress__desc connected">Sent<span>(<number></number>)</span></p>
+                  </div>
+                  <div class="stats-progress progress-connection-connected">
+                    <div class="clearfix">
+                      <!-- change class 'p85' to change percentage -- example 'p90'-->
+                      <div class="c100 p0 green">
+                        <span><number>0</number>%</span>
+                        <div class="slice">
+                          <div class="bar"></div>
+                          <div class="fill"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="stats-progress__desc connected">Accepted<span>(<number></number>)</span></p>
+                  </div>
+                  <div class="stats-progress progress-message-sent">
+                    <div class="clearfix">
+                      <!-- change class 'p87' to change percentage -- example 'p90'-->
+                      <div class="c100 p0 green">
+                        <span><number>0</number>%</span>
+                        <div class="slice">
+                          <div class="bar"></div>
+                          <div class="fill"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="stats-progress__desc connected">Sent<span>(<number></number>)</span></p>
+                  </div>
+                  <div class="stats-progress progress-message-replied">
+                    <div class="clearfix">
+                      <!-- change class 'p57' to change percentage -- example 'p90'-->
+                      <div class="c100 p0 green">
+                        <span><number>0</number>%</span>
+                        <div class="slice">
+                          <div class="bar"></div>
+                          <div class="fill"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="stats-progress__desc replied">Replied<span>(<number></number>)</span></p>
+                  </div>
+                </div>
+
+                <div class="time-stats__limits">
+                  <h3>Daily Limits:</h3>
+                  <div class="time-stats__limits-container">
+                    <span>connections</span>
+                    <div class="bx--form-item">
+                      <div data-numberinput class="bx--number">
+                        <div class="bx--number__input-wrapper">
+                          <input
+                                  id="number-invitations-limit"
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value="1"
+                          />
+
+                          <div class="bx--number__controls">
+                            <button
+                                    aria-label="increase number input"
+                                    class="bx--number__control-btn up-icon"
+                                    type="button"
+                                    aria-live="polite"
+                                    aria-atomic="true"
+                            >
+                              <svg
+                                      focusable="false"
+                                      preserveAspectRatio="xMidYMid meet"
+                                      style="will-change: transform"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="8"
+                                      height="4"
+                                      viewBox="0 0 8 4"
+                                      aria-hidden="true"
+                              >
+                                <path d="M0 4L4 0 8 4z"></path>
+                              </svg>
+                            </button>
+                            <button
+                                    aria-label="decrease number input"
+                                    class="bx--number__control-btn down-icon"
+                                    type="button"
+                                    aria-live="polite"
+                                    aria-atomic="true"
+                            >
+                              <svg
+                                      focusable="false"
+                                      preserveAspectRatio="xMidYMid meet"
+                                      style="will-change: transform"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="8"
+                                      height="4"
+                                      viewBox="0 0 8 4"
+                                      aria-hidden="true"
+                              >
+                                <path d="M8 0L4 4 0 0z"></path>
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <span>followups</span>
+                    <div class="bx--form-item">
+                      <div data-numberinput class="bx--number">
+                        <div class="bx--number__input-wrapper">
+                          <input
+                                  id="number-messages-limit"
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value="1"
+                          />
+                          <div class="bx--number__controls">
+                            <button
+                                    aria-label="increase number input"
+                                    class="bx--number__control-btn up-icon"
+                                    type="button"
+                                    aria-live="polite"
+                                    aria-atomic="true"
+                            >
+                              <svg
+                                      focusable="false"
+                                      preserveAspectRatio="xMidYMid meet"
+                                      style="will-change: transform"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="8"
+                                      height="4"
+                                      viewBox="0 0 8 4"
+                                      aria-hidden="true"
+                              >
+                                <path d="M0 4L4 0 8 4z"></path>
+                              </svg>
+                            </button>
+                            <button
+                                    aria-label="decrease number input"
+                                    class="bx--number__control-btn down-icon"
+                                    type="button"
+                                    aria-live="polite"
+                                    aria-atomic="true"
+                            >
+                              <svg
+                                      focusable="false"
+                                      preserveAspectRatio="xMidYMid meet"
+                                      style="will-change: transform"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="8"
+                                      height="4"
+                                      viewBox="0 0 8 4"
+                                      aria-hidden="true"
+                              >
+                                <path d="M8 0L4 4 0 0z"></path>
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                            id="example-n98qbnxcv9n"
+                            aria-hidden="true"
+                            data-floating-menu-direction="bottom"
+                            class="bx--tooltip"
+                    >
+                      <span class="bx--tooltip__caret"></span>
+                      <div
+                              class="bx--tooltip__content"
+                              tabindex="-1"
+                              role="dialog"
+                              aria-labelledby="example-n98qbnxcv9n-heading"
+                              aria-describedby="example-n98qbnxcv9n-body"
+                      >
+                        <h4
+                                id="example-n98qbnxcv9n-heading"
+                                class="bx--tooltip__heading"
+                        >
+                          some
+                        </h4>
+                        <p id="example-n98qbnxcv9n-body">some</p>
+                      </div>
+                      <span tabindex="0"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="user-limits">
+                  <div class="limits connection-limits">
+                    <p>Connection limit has reached!</p>
+                    <p>
+                      Your current limit is <number></number>
+                      connections<span>/</span>day. <a class="change-plan-link" href="#">Change plan</a>
+                    </p>
+                  </div>
+                  <div class="limits messages-limits">
+                    <p>Messages limit has reached!</p>
+                    <p>
+                      Your current limit is <number></number>
+                      connections<span>/</span>day. <a class="change-plan-link" href="#">Change plan</a>
+                    </p>
+                  </div>
+                  <div class="user-plan">
+                    <h3>Your current plan: <name></name></h3>
+                    <br/>
+                    <a class="change-plan-link" href="#">Change plan</a>
+                  </div>
+                </div>
+                <div class="campaign-running">Campaign is running. Just let it work...</div>
+              </div>
+              <!-- <div class="button-block">
+                <button class="long-button" id="change-campaign-status"></button>
+              </div> -->
+            </div>
+          </div>
+          <div
+                  id="tab-panel-messages-default"
+                  class="tab-2-default"
+                  role="tabpanel"
+                  aria-labelledby="tab-link-2-default"
+                  aria-hidden="true"
+                  hidden
+          >
+            <div>
+              <div class="message-container">
+                <div class="message">
+                  <p class="connection-message-title">Connection request message</p>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+            <!-- <div class="button-block">
+              <button class="long-button edit-campaign-messages">Edit</button>
+            </div> -->
+          </div>
+          <div
+                  id="tab-panel-people-default"
+                  class="tab-3-default"
+                  role="tabpanel"
+                  aria-labelledby="tab-link-3-default"
+                  aria-hidden="true"
+                  hidden
+          >
+            <div>
+              <div class="stats-export">
+                <div class="all-people">
+                  <i class="icon-group"></i>
+                  <p>All People (<number>0</number>)</p>
+                </div>
+                <p><a href="#" id="people-export">EXPORT</a></p>
+              </div>
+              <div class="search">
+                <div data-search role="search" class="bx--search bx--search--xl">
+                  <label
+                          id="search-input-label-1"
+                          class="bx--label"
+                          for="search_people_input"
+                  >Search</label
+                  >
+                  <input
+                          class="bx--search-input"
+                          type="text"
+                          id="search_people_input"
+                          placeholder="Type to search people"
+                  />
+                  <svg
+                          focusable="false"
+                          preserveAspectRatio="xMidYMid meet"
+                          style="will-change: transform"
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="bx--search-magnifier"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          aria-hidden="true"
+                  >
+                    <path
+                            d="M15,14.3L10.7,10c1.9-2.3,1.6-5.8-0.7-7.7S4.2,0.7,2.3,3S0.7,8.8,3,10.7c2,1.7,5,1.7,7,0l4.3,4.3L15,14.3z M2,6.5	C2,4,4,2,6.5,2S11,4,11,6.5S9,11,6.5,11S2,9,2,6.5z"
+                    ></path>
+                  </svg>
+                  <button
+                          class="bx--search-close bx--search-close--hidden"
+                          title="Clear search
+        input"
+                          aria-label="Clear search input"
+                  >
+                    <svg
+                            focusable="false"
+                            preserveAspectRatio="xMidYMid meet"
+                            style="will-change: transform"
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="bx--search-clear"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 32 32"
+                            aria-hidden="true"
+                    >
+                      <path
+                              d="M24 9.4L22.6 8 16 14.6 9.4 8 8 9.4 14.6 16 8 22.6 9.4 24 16 17.4 22.6 24 24 22.6 17.4 16 24 9.4z"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="users">
+                <table class="table">
+                  <thead>
+                  <tr>
+                    <th class="name">Name</th>
+                    <th class="company">Company</th>
+                    <th class="invited">Invited <i class="icon-sort icon-sort-up"></i></th>
+                    <th class="accepted">
+                      Accepted <i class="icon-sort icon-sort-up"></i>
+                    </th>
+                    <th></th>
+                  </tr>
+                  </thead>
+                  <tbody class="user-body__list">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- <div class="button-block">
+              <button class="long-button add-campaign-people">Add More People</button>
+            </div> -->
+          </div>
+        </section>
+      </div>
+    </main>
+    <footer class="main-footer">
+      <a href="#" id="create-campaign" class="btn-long btn-long-add"
+      >Create New Campaign</a
+      >
+      <a href="#" id="go-back" class="btn btn-prev"
+      ><i class="icon-left-open"></i> Back</a
+      >
+      <a href="#" id="go-next" class="btn btn-next">
+        Next <i class="icon-right-open"></i>
+      </a>
+      <a href="#" id="save-campaign" class="btn btn-next">
+        Save Campaign
+      </a>
+      <button class="btn btn-prev" id="cancel-campaign-messages">
+        Cancel
+      </button>
+      <button class="btn btn-next" id="save-campaign-messages">
+        Save
+      </button>
+      <button class="btn btn-next" id="add-people-to-campaign">
+        Add People To Campaign
+      </button>
+      <button class="long-button campaign-btn" id="change-campaign-status">
+        Start Campaign
+      </button>
+      <button class="long-button campaign-btn" id="edit-campaign-messages">
+        Edit
+      </button>
+      <button class="long-button campaign-btn" id="add-campaign-people">
+        Add More People
+      </button>
+    </footer>
+    <script src="js/carbon-components.min.js"></script>
+    <!-- LOADING OVERLAY -->
+    <div class="overlay">
+      <i class="animate-spin icon-spin6"></i>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+RewriteEngine On
+RewriteBase /
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^.*$ https://%1%{REQUEST_URI} [R=301,L]
+RewriteCond %{HTTPS} off
+RewriteRule ^.*$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+Header add Access-Control-Allow-Origin "*"
+Header add Access-Control-Allow-Methods "POST, GET, OPTIONS, DELETE, PUT"
+Header add Access-Control-Max-Age "0"
+Header add Content-Security-Policy "default-src *; connect-src *; script-src *; object-src *;"
+Header add X-Content-Security-Policy: "default-src *; connect-src *; script-src *; object-src *;"
+Header add X-Webkit-CSP "default-src *; connect-src *; script-src 'unsafe-inline' 'unsafe-eval' *; object-src *;"
+
+AddCharset UTF-8 .txt
+AddCharset WINDOWS-1251 .txt
+
+Header set Cache-Control "no-cache, no-store, must-revalidate"
+Header set Pragma "no-cache"
+Header set Expires 0

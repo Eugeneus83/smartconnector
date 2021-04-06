@@ -1,0 +1,36 @@
+{
+  "name": "LinkedIn Smart Connector",
+  "version": "1.0.15",
+  "description": "Auto connections inviter and followup messenger for LinkedIn (LinkedHelper best alternative)",
+  "homepage_url": "https://smartconnector.org",
+  "permissions": ["storage", "webRequest", "https://www.linkedin.com/", "https://app.smartconnector.org/"],
+  "content_security_policy": "script-src 'self' https://app.smartconnector.org; object-src 'self'",
+  "browser_action": {
+      "default_title": "LinkedIn SmartConnector",
+      "default_popup": "popup.html"
+   },
+   "icons": {
+    "120": "images/logo_120.png"
+  },
+  "content_scripts": [
+     {
+	    "matches": [
+          "*://*.linkedin.com/*"
+	    ],
+        "js": [
+          "js/jquery.min.js",
+          "js/jquery-ui.js",
+          "js/linkedin.js"
+        ]
+    }
+   ],
+  "background": {
+    "scripts": ["js/config.js", "js/common.js", "js/background.js"],
+    "persistent": true
+  },
+  "web_accessible_resources": [
+    "icons/*.*",
+    "index.html"
+  ],
+  "manifest_version": 2
+}

@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/carbon-components.min.css" />
+  <link rel="stylesheet" href="icons/css/extention.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <script src="js/jquery.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/workflow.js"></script>
+  <script src="js/popup.js"></script>
+  <title>Extention</title>
+  <style type="text/css">
+    body {width:400px}
+    form#hello, form#confirmation, form#forgot-password, form#reset-password {display:none}
+    form#hello span.username {font-weight:bold}
+    form#confirmation label span.email {color:red}
+    a#signin {color:#008000}
+    a#signup {color:#0000FF}
+  </style>
+</head>
+<body>
+<header class="header-sign-up">
+  <div style="width:100%;text-align:center">
+    <img src="images/logo.png" width="150px" />
+  </div>
+  <h1>Linkedin Smart Connector</h1>
+  <p class="header-subtitle">Automate your LinkedIn outreach</p>
+  <p class="header-desc">
+  </p>
+</header>
+<main class="main-sign-up">
+  <p class="main-sing-up__title"><a id="signin" href="#">Sign In</a> / <a id="signup" href="#">Sign Up</a></p>
+  <form id="signinform">
+  <div class="main-sign-up__form">
+    <div class="bx--form-item form">
+      <input
+              required
+              name="email"
+              type="email"
+              class="bx--text-input bx--text-input--light"
+              placeholder="Email"
+      />
+    </div>
+
+    <div class="bx--form-item form" style="margin-bottom:20px">
+      <input
+              required
+              name="password"
+              type="password"
+              class="bx--text-input bx--text-input--light"
+              placeholder="Password"
+      />
+    </div>
+
+    <a href="#" id="forgot-password">Forgot Password</a>
+    <div class="bx--form-item button">
+      <button class="bx--btn bx--btn--primary" type="submit">Login</button>
+    </div>
+  </div>
+  </form>
+  <form id="signupform">
+    <div class="main-sign-up__form">
+      <div class="bx--form-item form">
+      <input
+              required
+              name="username"
+              type="text"
+              class="bx--text-input bx--text-input--light"
+              placeholder="User Name"
+      />
+      </div>
+
+      <div class="bx--form-item form">
+        <input
+                required
+                name="email"
+                type="email"
+                class="bx--text-input bx--text-input--light"
+                placeholder="Email"
+        />
+      </div>
+
+      <div class="bx--form-item form">
+        <input
+                required
+                name="password"
+                type="text"
+                class="bx--text-input bx--text-input--light"
+                placeholder="Password"
+        />
+      </div>
+      <div class="bx--form-item button">
+        <button class="bx--btn bx--btn--primary" type="submit">Create Account</button>
+      </div>
+    </div>
+  </form>
+
+  <form id="confirmation">
+    <div class="main-sign-up__form">
+      <div class="bx--form-item form">
+        <label>Please enter code we sent to <span class="email"></span></label>
+        <input
+                required
+                name="code"
+                type="text"
+                class="bx--text-input bx--text-input--light"
+                placeholder="Confirmation Code"
+        />
+      </div>
+
+      <div class="bx--form-item button">
+        <button class="bx--btn bx--btn--primary" type="submit">Next</button>
+      </div>
+    </div>
+  </form>
+
+  <form id="hello">
+    <div class="main-sign-up__form">
+      <div class="bx--form-item form" style="display:block">
+        Hello, <span class="username"></span>
+        <a style="float:right;color:#000000;" href="#" class="logout">Logout</a>
+      </div>
+      <div class="bx--form-item form">
+        <div class="main-sign-up__btns-block">
+          <button type="button" class="btn btn-launch">
+            Launch SmartConnector
+          </button>
+        </div>
+      </div>
+      <div class="user-plan-box">
+        Your current plan: <name></name>
+      </div>
+      <div class="main-sign-up__btns-block">
+      <button type="button" class="btn btn-upgrade change-plan-link">Upgrade</button>
+      </div>
+    </div>
+  </form>
+
+  <form id="forgot-password">
+    <div class="main-sign-up__form">
+      <div class="bx--form-item form">
+        <label>Please enter your email</label>
+        <input
+                required
+                name="email"
+                type="email"
+                class="bx--text-input bx--text-input--light"
+                placeholder="Email"
+        />
+      </div>
+
+      <div class="bx--form-item button">
+        <button class="bx--btn bx--btn--primary" type="submit">Next</button>
+      </div>
+    </div>
+  </form>
+
+  <form id="reset-password">
+    <div class="main-sign-up__form">
+      <div class="bx--form-item form">
+        <input
+                required
+                name="password"
+                type="text"
+                class="bx--text-input bx--text-input--light"
+                placeholder="New Password"
+        />
+      </div>
+
+      <div class="bx--form-item form">
+        <input
+                required
+                name="confirm_password"
+                type="text"
+                class="bx--text-input bx--text-input--light"
+                placeholder="Confirm Password"
+        />
+      </div>
+
+      <div class="bx--form-item form">
+      <label>Please enter code we sent to <span class="email"></span></label>
+      <input
+            required
+            name="code"
+            type="text"
+            class="bx--text-input bx--text-input--light"
+            placeholder="Code"
+      />
+      </div>
+
+      <input
+              required
+              name="email"
+              type="hidden"
+      />
+
+      <div class="bx--form-item button">
+        <button class="bx--btn bx--btn--primary" type="submit">Reset</button>
+      </div>
+    </div>
+  </form>
+</main>
+<footer class="sign-up-footer">
+  <p>
+    By using Linkedin Smart Connector App you agree to our <br /><a href="https://smartconnector.org/terms.html">terms of use</a
+  >, <a href="https://smartconnector.org/privacy.html">privacy policy</a> and <a href="https://smartconnector.org/refund.html">refund policy</a>
+  </p>
+</footer>
+<script src="js/carbon-components.min.js"></script>
+<!-- LOADING OVERLAY -->
+<div class="overlay">
+  <i class="animate-spin icon-spin6"></i>
+</div>
+</body>
+</html>

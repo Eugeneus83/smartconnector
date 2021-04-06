@@ -1,0 +1,8 @@
+RewriteEngine On
+RewriteBase /scripts/linkedin-smart-connector/api/js      
+
+<FilesMatch "\.(js)$">
+Order allow,deny
+Deny from all
+
+</FilesMatch>

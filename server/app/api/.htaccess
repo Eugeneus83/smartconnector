@@ -1,0 +1,4 @@
+RewriteOptions InheritBefore
+RewriteEngine On
+RewriteRule ^([^\/]+)/([^\/]+)$ index.php?model=$1&action=$2 [L]
+RewriteRule ^([^\/]+)/([^\/]+)/([0-9\/]+)$ index.php?model=$1&action=$2&ids=$3  [L]
