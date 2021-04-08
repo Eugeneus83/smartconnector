@@ -1,7 +1,7 @@
 {
   "name": "LinkedIn Smart Connector",
-  "version": "1.0.15",
-  "description": "Auto connections inviter and followup messenger for LinkedIn (LinkedHelper best alternative)",
+  "version": "1.0.16",
+  "description": "Auto connections inviter and followup messenger for LinkedIn (LinkedHelper alternative)",
   "homepage_url": "https://smartconnector.org",
   "permissions": ["storage", "webRequest", "https://www.linkedin.com/", "https://app.smartconnector.org/"],
   "content_security_policy": "script-src 'self' https://app.smartconnector.org; object-src 'self'",
