@@ -58,7 +58,7 @@ function Workflow() {
                         }
                     }
                     if (invited || invitationResult.invitation_id) {
-                        await markAsInvited(task.profile_id, invitationResult.invitation_id);
+                        await markAsInvited(task.profile_id, invitationResult?invitationResult.invitation_id:0);
                     }
                 }
             }
