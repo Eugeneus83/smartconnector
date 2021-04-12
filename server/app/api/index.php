@@ -281,11 +281,14 @@ class Api {
         $sql = "SELECT `id` FROM `followup` WHERE `campaign_id` = ?i";           
         $followupIds = array_column($this->_db->getAll($sql, $campaignId), 'id');
         if (count($followupIds)) {
-            $sql = "SELECT `file` FROM `attachment` WHERE `followup_id` IN (". implode(',', $followupIds). ")";
-            $fileIds = array_column($this->_db->getAll($sql), 'file');
-            if (count($fileIds)) {
-                var_dump($fileIds);
-                exit();
+            $sql = "SELECT `id`, `file` FROM `attachment` WHERE `followup_id` IN (". implode(',', $followupIds). ")";
+            foreach ($this->_db->getAll($sql) as $row) {
+                $attachmentPath = MEDIA_DIR. '/'. $row['file'];
+                if (file_exists($attachmentPath)) {
+                    unlink($attachmentPath);
+                }
+                $sql = "DELETE FROM `attachment` WHERE `id` = ". $row['id'];
+                $this->_db->query($sql);
             }
             $sql = "DELETE FROM `followup_profile` WHERE `followup_id` IN (". implode(',', $followupIds). ")";
             $this->_db->query($sql);
