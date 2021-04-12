@@ -1065,7 +1065,7 @@ class Api {
     
     private function generateRandomCode() {
         $return = null;
-        for ($i = 1; $i <= 8; $i ++) {
+        for ($i = 1; $i <= 6; $i ++) {
             $return .= rand(1, 9);            
         }
         return $return;
