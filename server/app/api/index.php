@@ -198,7 +198,7 @@ class Api {
             if (count($profileIds)) {
                 $this->insertCampaignProfiles($campaignId, $profileIds);
             }
-            return ['success' => 1, 'campaign_id' => $campaignId];
+            return ['success' => 1, 'campaign_id' => $campaignId, 'count' => count($userCampaignList) + 1];
         }else {
             return ['success' => 0, 'errors' => $errors];
         }

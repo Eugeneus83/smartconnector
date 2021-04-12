@@ -153,6 +153,10 @@ $(async function(){
             }
         }
 
+        if (result.count === 1) {
+            alert('Campaign is created! To activate campaign please follow to "Activity" tab and press "Start campaign" button.');
+        }
+
         buildCampaignList();
         gotoCampaignList();
     });
@@ -643,7 +647,9 @@ function gotoCampaignList(){
 function gotoCampaignName() {
     var campaignsLimit = $campaignList.attr('campaigns-limit');
     if ($('ul.main-campaign__list li.main-campaign__item').length >= campaignsLimit) {
-        alert('Maximum campaigns number for your plan is ' + campaignsLimit + '. Please change plan');
+        if (confirm('Maximum campaigns number for your plan is ' + campaignsLimit + '. Upgrade plan?')) {
+            gotoPlans();
+        }
         return;
     }
     $campaignList.hide();
