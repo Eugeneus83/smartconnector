@@ -283,12 +283,14 @@ class Api {
         if (count($followupIds)) {
             $sql = "SELECT `file` FROM `attachment` WHERE `followup_id` IN (". implode(',', $followupIds). ")";
             $fileIds = array_column($this->_db->getAll($sql), 'file');
-            var_dump($fileIds);exit();
-            
+            if (count($fileIds)) {
+                var_dump($fileIds);
+                exit();
+            }
             $sql = "DELETE FROM `followup_profile` WHERE `followup_id` IN (". implode(',', $followupIds). ")";
             $this->_db->query($sql);
             $sql = "DELETE FROM `followup` WHERE `campaign_id` = ?i";
-            $this->_db->query($sql, $campaignId);         
+            $this->_db->query($sql, $campaignId);
         }
         $sql = "DELETE FROM `campaign` WHERE `id` = ?i";
         $this->_db->query($sql, $campaignId);  
@@ -913,14 +915,14 @@ class Api {
         foreach ($this->_db->getAll($query) as $row) {
             if ($row['file']) {               
                 $attachmentPath = MEDIA_DIR. '/'. $row['file'];
-                //if (file_exists($attachmentPath)) {
+                if (file_exists($attachmentPath)) {
                     if ($mode == 'url') {
                         $value = $this->getAttachmentUrl($attachmentPath);                       
                     }else {
                         $value = $row['file'];
                     }
                     $return[$row['id']] = $value;
-                //} 
+                }
             }
         }
         return $return;
