@@ -212,6 +212,7 @@ class Api {
             $update = ['connection_message' => isset($data['messages']['connection']) && $data['messages']['connection']?$data['messages']['connection']:null, 'keep_sending_messages' => $data['messages']['keep_sending_messages']];
             $this->updateCampaign($campaignId, $update);
             $existingFollowUppList = $this->getFollowUpList(['id'], ['campaign_id' => $campaignId]);
+            $followupIds = array_keys($existingFollowUppList);
             if (isset($data['messages']['followup'])) {
                 $followupCount = count($existingFollowUppList);
                 $sortOrder = 1;
@@ -234,6 +235,9 @@ class Api {
             }
             foreach (array_keys($existingFollowUppList) as $followUpId) {
                 $this->deleteFollowUp($followUpId);
+            }
+            if (count($followupIds)) {
+                $this->deleteNonExistAttachments($followupIds);
             }
         }
         if (isset($data['people'])) {
@@ -911,6 +915,20 @@ class Api {
         $this->_db->query($sql, $followUpId);
         $sql = "DELETE FROM `followup` WHERE `id` = ?i";
         $this->_db->query($sql, $followUpId);
+    }
+
+    private function deleteNonExistAttachments($followupIds) {
+        if (!count($followupIds)) {
+            return;
+        }
+        $sql = "SELECT `id`, `file` FROM `attachment` WHERE `followup_id` IN (". implode(',', $followupIds). ")";
+        foreach ($this->_db->getAll($sql) as $row) {
+            $attachmentPath = MEDIA_DIR. '/'. $row['file'];
+            if (!file_exists($attachmentPath)) {
+                $sql = "DELETE FROM `attachment` WHERE `id` = ". $row['id'];
+                $this->_db->query($sql);
+            }
+        }
     }
     
     private function getAttachments(array $filter, $mode = null) {
