@@ -71,7 +71,7 @@ try {
             if ($action == 'sync') {
                 $result = $api->syncUserMessages($api->getPostData(true));
             }elseif ($action == 'sent') {
-                $result = $api->addFollowupLog($id, $id2, $api->getPostData(true));
+                $result = $api->addFollowupLog($id, $id2, $api->getPostData());
             }elseif ($action == 'latest') {
                 $result = $api->getMessageCheckTime();
             }
@@ -480,11 +480,12 @@ class Api {
         }
         $this->checkCampaignPermission($followup['campaign_id']);
         $insert = ['followup_id' => $followupId, 'profile_id' => $profileId, 'sent_at' => time()];
+        $insert['error'] = Null;
         if (isset($sent['error'])) {
             $insert['error'] = (int)$sent['error'];
         }
-        $sql = "INSERT INTO `followup_profile` SET ?u ON DUPLICATE KEY UPDATE `id` = `id`";
-        $this->_db->query($sql, $insert);
+        $sql = "INSERT INTO `followup_profile` SET ?u ON DUPLICATE KEY UPDATE `error` = ?i, `sent_at` = '". time(). "'";
+        $this->_db->query($sql, $insert, $insert['error']);
         if (isset($sent['thread_id']) && $sent['thread_id']) {
             $sql = "UPDATE `user_profile` SET `thread_id` = ?s WHERE `profile_id` = ?i AND `user_id` = $this->_userId";
             $this->_db->query($sql, $sent['thread_id'], $profileId); 
@@ -1081,8 +1082,8 @@ class Api {
         $return = json_decode($return, true);
         if ($return === null && $required) {
             throw new Exception('Empty input data');
-        } 
-        return $return;
+        }
+        return $return?$return:[];
     }   
     
     private function updateCampaign($campaignId, array $data) {
