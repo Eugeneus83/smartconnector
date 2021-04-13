@@ -76,14 +76,17 @@ function Workflow() {
                     setProfileInWork(task.profile_id);
                     var message = replacePlaceHolders(task.message, task);
                     console.log('Sending');
-                    var sent = await sendMessage(task.entity_id, message, task.attachments);
-                    if (sent) {
-                        console.log('updating follow up');
-                        var resp = await updateFollowupStatus(task.followup_id, task.profile_id, sent);
-                        console.log('send log', resp);
-                    }else {
-                        console.log('Not sent', sent);
-                    }
+                    sendConnectionMessage(task.entity_id, message, task.attachments, function(result){
+                        if (result) {
+                            console.log('updating follow up');
+                            updateFollowupStatus(task.followup_id, task.profile_id, result, function (response) {
+                                console.log('send log', response);
+                            });
+                        }else {
+                            console.log('Not sent');
+                        }
+                    });
+                    markAsSent(task.followup_id, task.profile_id);
                 }
             }
         }
@@ -815,7 +818,7 @@ function Workflow() {
         return null;
     }
 
-    var sendMessage = async function (entityId, text, files) {
+    var sendConnectionMessage = async function (entityId, text, files, callback) {
         var post;
         var attachments = [];
         var headers = await getHttpHeaders();
@@ -838,7 +841,6 @@ function Workflow() {
                         'content-type': fileData.type,
                         'csrf-token': headers['csrf-token']
                     });
-
                     attachments.push({
                         "id": response.data.value.urn,
                         "name": fileName,
@@ -861,11 +863,12 @@ function Workflow() {
         }else if (response.status){
             report.error = response.status;
         }
-        return report;
+        callback(report);
     }
 
-    var updateFollowupStatus = async function(followupId, profileId, status) {
-        return await doRequest('message/sent/' + followupId + '/' + profileId, 'post', status);
+    var updateFollowupStatus = async function(followupId, profileId, status, callback) {
+        var response = await doRequest('message/sent/' + followupId + '/' + profileId, 'post', status);
+        callback(response);
     }
 
     var sendInvitationError = function(profileId, status) {
@@ -875,6 +878,10 @@ function Workflow() {
     var markAsInvited = async function(profileId, invitationId) {
         doRequest('invitation/sent/' + profileId + '/' + invitationId);
         setProfileInvited(profileId);
+    }
+
+    var markAsSent = function(followupId, profileId) {
+        doRequest('message/sent/' + followupId + '/' + profileId);
     }
 
     var replacePlaceHolders = function(text, data) {
