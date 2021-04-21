@@ -1054,7 +1054,7 @@ function addFollowUpMessage(message = null, sendInDays = null, sendImmediatelyWh
     }
     var followupNumber = $('div.followup-message').length + 1;
     var keepSendingMessages = $('div#messages-step input.keep-sending-messages').prop('checked');
-    $afterItem.find('p.send-schedule-title').text('Send X days after ' + (followupNumber > 1?'previous message':"they've connected") + ' ' + (keepSendingMessages?'even if replied:':'if no reply'));
+    $afterItem.find('p.send-schedule-title').text('Send X days after ' + (followupNumber > 1?'previous message':"they've connected") + ' ' + (keepSendingMessages?'even if replied:':'if no reply') + ' (set 0 to message immediately)');
     var $sendImmediatelyInput = $afterItem.find('input.send-immediately-when-replied');
     if (followupNumber == 1) {
         $sendImmediatelyInput.parent().parent().hide();
