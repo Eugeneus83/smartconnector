@@ -153,9 +153,7 @@ $(async function(){
             }
         }
 
-        if (result.count === 1) {
-            alert('Campaign is created! To activate campaign please follow to "Activity" tab and press "Start campaign" button.');
-        }
+        alert('Campaign is created! To activate campaign please follow to "Activity" tab and press "Start campaign" button.');
 
         buildCampaignList();
         gotoCampaignList();
