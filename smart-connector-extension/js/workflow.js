@@ -630,6 +630,11 @@ function Workflow() {
         return await doRequest('user/get');
     }
 
+    this.exportCampaignPeople = async function(campaignId) {
+        var headers = await getAuthHeaders();
+        redirect(apiEndpoint + '/?model=campaign&action=export&ids=' + campaignId + '&connector-session-id=' + headers['connector-session-id']);
+    }
+
     var syncInvitations = async function(data) {
         await doRequest('invitation/sync', 'post', data);
         var entityIds = Object.keys(data);

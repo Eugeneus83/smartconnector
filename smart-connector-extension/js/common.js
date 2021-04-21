@@ -114,6 +114,13 @@ function doUploadFile(fileUrl){
     });
 }
 
+function redirect(url) {
+    chrome.runtime.sendMessage({
+        action: 'redirect',
+        url: url
+    });
+}
+
 async function getData(url = '', headers = {}, type = false) {
     if (!type) type = 'json';
     try {

@@ -557,51 +557,7 @@ function loadCampaignPeople(profiles, clear = false, full = true) {
     })
 
     $('a#people-export').unbind('click').click(function(){
-        function padl2(s) { if(s<10) return '0'+s; return s; }
-        var n = new Date();
-        var filename = 'linkedin_'
-            + '_' + n.getFullYear()+'-' + padl2(n.getMonth() + 1) +'-' + padl2(n.getDate())
-            + '_' + padl2(n.getHours())+'-' + padl2(n.getMinutes())+'-' + padl2(n.getSeconds())
-            + '.csv';
-        var separator = ";", EOL = "\r\n";
-        var headers = ['"Link"', '"First Name"', '"Last Name"', '"Company"', '"Job Title"', '"Custom Snippet 1"', '"Custom Snippet 2"', '"Custom Snippet 3"', '"Invited"', '"Accepted"'];
-        var data = headers.join(separator) + EOL;
-        var row;
-        var fieldNames = ['entity_id', 'first_name', 'last_name', 'company', 'job_title', 'custom_snippet_1', 'custom_snippet_2', 'custom_snippet_3'];
-        $userListBody.find('.user-body__item').each(function() {
-            var $this = $(this);
-            row = [];
-            for (var i = 0; i < fieldNames.length; i ++) {
-                var fieldValue = $this.find('input.' + fieldNames[i]).val();
-                if (fieldNames[i] == 'entity_id') {
-                    fieldValue = linkedinDomain + '/in/' + fieldValue;
-                }
-                row.push('"' + fieldValue.replace(/"/g, '').replace("\t", ' ') + '"') + '"';
-            }
-            row.push($this.find('td.invited i.icon-ok-circled').length?1:0);
-            row.push($this.find('td.accepted i.icon-ok-circled').length?1:0);
-            data += row.join(separator) + EOL;
-        });
-        var blob = new Blob([
-                new Uint8Array([0xEF, 0xBB, 0xBF]), // UTF-8 BOM,
-                data
-            ],
-            { type: 'text/csv;charset=utf-8;' });
-
-        if (navigator.msSaveBlob) { // IE 10+
-            navigator.msSaveBlob(blob, filename);
-        } else {
-            var link = document.createElement("a");
-            if (link.download !== undefined) {
-                var url = URL.createObjectURL(blob);
-                link.setAttribute("href", url);
-                link.setAttribute("download", filename);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        }
+        workflow.exportCampaignPeople($campaignDetail.attr('campaign_id'));
     });
 }
 

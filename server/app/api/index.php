@@ -50,6 +50,8 @@ try {
                 $result = $api->getCampaign($id);
             }elseif ($action == 'stat') {
                 $result = $api->fetchCampaignStat($id);
+            }elseif ($action == 'export') {
+                $api->exportCampaignPeople($id);
             }
         }elseif ($model == 'task') {
             if ($action == 'get') {
@@ -344,7 +346,88 @@ class Api {
         
         return $campaign;
     }
-    
+
+    public function exportCampaignPeople($campaignId) {
+        $this->checkCampaignPermission($campaignId);
+
+        $sql = "SELECT `name` FROM `campaign` WHERE `id` = ?i";
+        $tempDir = TEMP_DIR. '/'. $this->_userId;
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0777, true);
+        }
+        $fPath = $tempDir. '/'. $this->totranslit($this->_db->getOne($sql, $campaignId)). '_'. date('Y-m-d'). '.csv';
+        $sql = "SELECT p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.job_title, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, up.invitation_sent_at, up.accepted_at, up.last_respond_at, MIN(fp.sent_at) AS `message_sent_at` FROM `user_profile` AS `up`
+        JOIN `campaign_profile` AS `cp` ON cp.profile_id = up.profile_id
+        JOIN `profile` AS `p` ON p.id = cp.profile_id 
+        LEFT JOIN `followup_profile` AS `fp` ON fp.profile_id = cp.profile_id 
+        WHERE cp.campaign_id = ". mysqli_real_escape_string($this->_db->conn, $campaignId). " AND up.user_id = $this->_userId
+        GROUP BY cp.profile_id";
+
+        $fp = fopen($fPath, 'w');
+        fputs($fp, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
+        $headers = ['Link', 'First Name', 'Last Name', 'Company', 'Job Title', 'Custom Snippet 1', 'Custom Snippet 2', 'Custom Snippet 3', 'Invited', 'Accepted', 'Followup sent', 'Replied'];
+        fputcsv($fp, $headers, "\t", '"');
+
+        $totalInvitationSent = 0;
+        $totalInvitationAccepted = 0;
+        $totalFollowupSent = 0;
+        $totalReplied = 0;
+        $res = mysqli_query($this->_db->conn, $sql);
+
+        while ($row = mysqli_fetch_assoc($res)) {
+            $csvRow = [];
+            $csvRow[] = 'https://www.linkedin.com/in/'. ($row['public_id']?$row['public_id']:$row['entity_id']);
+            foreach (['first_name', 'last_name', 'company', 'job_title', 'custom_snippet_1', 'custom_snippet_2', 'custom_snippet_3'] as $fieldName) {
+                $csvRow[] = $row[$fieldName];
+            }
+            if ($row['invitation_sent_at']) {
+                $csvRow[] = 'Y';
+                $totalInvitationSent ++;
+            }else {
+                $csvRow[] = 'N';
+            }
+            if ($row['accepted_at']) {
+                $csvRow[] = 'Y';
+                $totalInvitationAccepted ++;
+            }else {
+                $csvRow[] = 'N';
+            }
+            if ($row['message_sent_at']) {
+                $csvRow[] = 'Y';
+                $totalFollowupSent ++;
+            }else {
+                $csvRow[] = 'N';
+            }
+            if ($row['last_respond_at']) {
+                $csvRow[] = 'Y';
+                $totalReplied ++;
+            }else {
+                $csvRow[] = 'N';
+            }
+            fputcsv($fp, $csvRow, "\t", '"');
+        }
+
+        for ($i = 0; $i <= 1; $i ++) {
+            fputcsv($fp, [''], "\t", '"');
+        }
+
+        fputcsv($fp, ['Total invitations sent:', $totalInvitationSent], "\t", '"');
+        fputcsv($fp, ['Total connected:', $totalInvitationAccepted], "\t", '"');
+        fputcsv($fp, ['Total replied:', $totalReplied], "\t", '"');
+        fputcsv($fp, ['Total followup sent:', $totalFollowupSent], "\t", '"');
+
+        fclose($fp);
+
+        header('HTTP/1.1 200 OK');
+        header('Date: ' . date ('D M j G:i:s T Y' ));
+        header('Last-Modified: ' . date ( 'D M j G:i:s T Y'));
+        header('Content-Type: application/vnd.ms-excel') ;
+        header("Content-Disposition: attachment;filename=". basename($fPath));
+        echo mb_convert_encoding(file_get_contents($fPath), 'UCS-2LE', 'UTF-8');
+        unlink($fPath);
+        exit();
+    }
+
     public function getTask() {       
         $return = ['invite' => [], 'followup' => [], 'limits' => []];        
         $userCampaignList = $this->getCampaignList(['user_id' => $this->_userId, 'active' => 1]);        
@@ -1201,6 +1284,56 @@ class Api {
         $mail->SMTPOptions = array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true));
         
         return $mail->send();
+    }
+
+    private function totranslit($var, $lower = true, $punkt = true) {
+        $langtranslit = array(
+            'а' => 'a', 'б' => 'b', 'в' => 'v',
+            'г' => 'g', 'д' => 'd', 'е' => 'e',
+            'ё' => 'e', 'ж' => 'zh', 'з' => 'z',
+            'и' => 'i', 'й' => 'y', 'к' => 'k',
+            'л' => 'l', 'м' => 'm', 'н' => 'n',
+            'о' => 'o', 'п' => 'p', 'р' => 'r',
+            'с' => 's', 'т' => 't', 'у' => 'u',
+            'ф' => 'f', 'х' => 'h', 'ц' => 'c',
+            'ч' => 'ch', 'ш' => 'sh', 'щ' => 'sch',
+            'ь' => '', 'ы' => 'y', 'ъ' => '',
+            'э' => 'e', 'ю' => 'yu', 'я' => 'ya',
+            "ї" => "yi", "є" => "ye",
+
+            'А' => 'A', 'Б' => 'B', 'В' => 'V',
+            'Г' => 'G', 'Д' => 'D', 'Е' => 'E',
+            'Ё' => 'E', 'Ж' => 'Zh', 'З' => 'Z',
+            'И' => 'I', 'Й' => 'Y', 'К' => 'K',
+            'Л' => 'L', 'М' => 'M', 'Н' => 'N',
+            'О' => 'O', 'П' => 'P', 'Р' => 'R',
+            'С' => 'S', 'Т' => 'T', 'У' => 'U',
+            'Ф' => 'F', 'Х' => 'H', 'Ц' => 'C',
+            'Ч' => 'Ch', 'Ш' => 'Sh', 'Щ' => 'Sch',
+            'Ь' => '', 'Ы' => 'Y', 'Ъ' => '',
+            'Э' => 'E', 'Ю' => 'Yu', 'Я' => 'Ya',
+            "Ї" => "yi", "Є" => "ye",
+        );
+
+        $var = trim( strip_tags( $var ) );
+        $var = preg_replace( "/\s+/ms", "-", $var );
+        $var = strtr($var, $langtranslit);
+        if ( $punkt ) {
+            $var = preg_replace( "/[^a-z0-9\_\-.]+/mi", "", $var );
+        } else {
+            $var = preg_replace( "/[^a-z0-9\_\-]+/mi", "", $var );
+        }
+
+        $var = preg_replace( '#[\-]+#i', '-', $var );
+        if ($lower) $var = strtolower( $var );
+        $var = str_ireplace( ".php", "", $var );
+        $var = str_ireplace( ".php", ".ppp", $var );
+        if( strlen($var) > 200 ) {
+            $var = substr( $var, 0, 200 );
+            if(($temp_max = strrpos( $var, '-' ))) $var = substr($var, 0, $temp_max);
+        }
+
+        return $var;
     }
 }
 

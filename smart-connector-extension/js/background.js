@@ -73,6 +73,12 @@ chrome.runtime.onMessage.addListener(function (content, sender, response) {
             setTimeout(async function(){
                 response(await fetchCookie(content.name, content.tabId));
             }, 0);
+        }else if (content.action == 'redirect' && content.url) {
+            chrome.tabs.query({currentWindow: true, active: true}, async function (tabs) {
+                chrome.tabs.update(tabs[0].id, {url: content.url}, function() {
+                    response(true);
+                });
+            });
         }
     }
 

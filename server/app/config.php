@@ -10,7 +10,7 @@ define('MAX_FOLLOWUP_CAMPAIGN', 30);
 define('MAIN_PATH', $_SERVER['DOCUMENT_ROOT']);
 define('MEDIA_DIR', __DIR__. '/media');
 define('CLASSES_DIR', dirname(__DIR__). '/classes');
-
+define('TEMP_DIR', __DIR__. '/temp');
 
 
 ?>
