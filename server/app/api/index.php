@@ -391,14 +391,17 @@ class Api {
 
         if (!isset($return['limits']['message'])) { 
             $existingProfileFollowUps = [];
-            $sql = "SELECT fp.followup_id, fp.profile_id, fp.sent_at, fp.error FROM `followup_profile` AS `fp`
+            $sql = "SELECT fp.followup_id, fp.profile_id, fp.sent_at, fp.success, fp.error FROM `followup_profile` AS `fp`
             JOIN `followup` AS `f` ON f.id = fp.followup_id 
             WHERE f.campaign_id IN (?a) AND fp.sent_at IS NOT NULL";
         
             $latestMessageSent = 0;
             foreach ($this->_db->getAll($sql, $userCampaignIds) as $row) {
-                $existingProfileFollowUps[$row['followup_id']][$row['profile_id']] = $row;
                 $messageSentAt = $row['sent_at'];
+                if (!$row['success'] && time() - $messageSentAt > 7200) {
+                    continue; //Will send again message not successfullly sent before
+                }
+                $existingProfileFollowUps[$row['followup_id']][$row['profile_id']] = $row;
                 if ($messageSentAt > $latestMessageSent) {
                     $latestMessageSent = $messageSentAt;
                 }
@@ -416,7 +419,7 @@ class Api {
                 JOIN `profile` AS `p` ON p.id = cp.profile_id 
                 JOIN `user_profile` AS `up` ON up.profile_id = p.id AND up.user_id = $this->_userId
                 WHERE cp.campaign_id IN (?a) AND (up.accepted_at IS NOT NULL AND up.accepted_at > 0) AND (up.sent_in_work_at IS NULL OR (". time(). " - up.sent_in_work_at) > ". SAME_PERSON_MESSAGES_DELAY. ") ORDER BY p.id ASC";
-            
+
                 $profiles = $this->_db->getAll($sql, $userCampaignIds);
    
                 $followupList = [];    
@@ -485,11 +488,15 @@ class Api {
         $this->checkCampaignPermission($followup['campaign_id']);
         $insert = ['followup_id' => $followupId, 'profile_id' => $profileId, 'sent_at' => time()];
         $insert['error'] = Null;
-        if (isset($sent['error'])) {
-            $insert['error'] = (int)$sent['error'];
+        $insert['success'] = 0;
+        if (count($sent)) {
+            $insert['success'] = 1;
+            if (isset($sent['error'])) {
+                $insert['error'] = (int)$sent['error'];
+            }
         }
-        $sql = "INSERT INTO `followup_profile` SET ?u ON DUPLICATE KEY UPDATE `error` = ?i, `sent_at` = '". time(). "'";
-        $this->_db->query($sql, $insert, $insert['error']);
+        $sql = "INSERT INTO `followup_profile` SET ?u ON DUPLICATE KEY UPDATE `success` = ?i, `error` = ?i, `sent_at` = '". time(). "'";
+        $this->_db->query($sql, $insert, $insert['success'], $insert['error']);
         if (isset($sent['thread_id']) && $sent['thread_id']) {
             $sql = "UPDATE `user_profile` SET `thread_id` = ?s WHERE `profile_id` = ?i AND `user_id` = $this->_userId";
             $this->_db->query($sql, $sent['thread_id'], $profileId); 
@@ -843,7 +850,7 @@ class Api {
     private function getMessagesCount(array $campaignIds, $hours = 24) {
         $sql = "SELECT COUNT(*) FROM `followup_profile` AS `fp` 
          JOIN `followup` AS `f` ON f.id = fp.followup_id
-         WHERE f.campaign_id IN (?a) AND fp.sent_at >= ". (time() - 3600 * $hours);
+         WHERE f.campaign_id IN (?a) AND fp.success = 1 AND fp.sent_at >= ". (time() - 3600 * $hours);
         return $this->_db->getOne($sql, $campaignIds);
     }
     
