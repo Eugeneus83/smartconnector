@@ -356,7 +356,11 @@ class Api {
             mkdir($tempDir, 0777, true);
         }
         $fPath = $tempDir. '/'. $this->totranslit($this->_db->getOne($sql, $campaignId)). '_'. date('Y-m-d'). '.csv';
-        $sql = "SELECT p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.job_title, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, up.invitation_sent_at, up.accepted_at, up.last_respond_at, MIN(fp.sent_at) AS `message_sent_at` FROM `user_profile` AS `up`
+
+        $sql = "SELECT COUNT(*) FROM `followup` WHERE `campaign_id` = ?i";
+        $followupsTotalCount = $this->_db->getOne($sql, $campaignId);
+
+        $sql = "SELECT p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.job_title, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, up.invitation_sent_at, up.accepted_at, up.last_respond_at, COUNT(fp.sent_at) AS `message_sent_count` FROM `user_profile` AS `up`
         JOIN `campaign_profile` AS `cp` ON cp.profile_id = up.profile_id
         JOIN `profile` AS `p` ON p.id = cp.profile_id 
         LEFT JOIN `followup_profile` AS `fp` ON fp.profile_id = cp.profile_id 
@@ -365,12 +369,11 @@ class Api {
 
         $fp = fopen($fPath, 'w');
         fputs($fp, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
-        $headers = ['Link', 'First Name', 'Last Name', 'Company', 'Job Title', 'Custom Snippet 1', 'Custom Snippet 2', 'Custom Snippet 3', 'Invited', 'Accepted', 'Followup sent', 'Replied'];
+        $headers = ['Link', 'First Name', 'Last Name', 'Company', 'Job Title', 'Custom Snippet 1', 'Custom Snippet 2', 'Custom Snippet 3', 'Invited', 'Accepted', 'Replied', 'Followup sent', 'Finished'];
         fputcsv($fp, $headers, "\t", '"');
 
         $totalInvitationSent = 0;
         $totalInvitationAccepted = 0;
-        $totalFollowupSent = 0;
         $totalReplied = 0;
         $res = mysqli_query($this->_db->conn, $sql);
 
@@ -392,18 +395,14 @@ class Api {
             }else {
                 $csvRow[] = 'N';
             }
-            if ($row['message_sent_at']) {
-                $csvRow[] = 'Y';
-                $totalFollowupSent ++;
-            }else {
-                $csvRow[] = 'N';
-            }
             if ($row['last_respond_at']) {
                 $csvRow[] = 'Y';
                 $totalReplied ++;
             }else {
                 $csvRow[] = 'N';
             }
+            $csvRow[] = $row['message_sent_count']. ' of '. $followupsTotalCount;
+            $csvRow[] = $row['message_sent_count'] >= $followupsTotalCount?'Y':'N';
             fputcsv($fp, $csvRow, "\t", '"');
         }
 
@@ -414,7 +413,6 @@ class Api {
         fputcsv($fp, ['Total invitations sent:', $totalInvitationSent], "\t", '"');
         fputcsv($fp, ['Total connected:', $totalInvitationAccepted], "\t", '"');
         fputcsv($fp, ['Total replied:', $totalReplied], "\t", '"');
-        fputcsv($fp, ['Total followup sent:', $totalFollowupSent], "\t", '"');
 
         fclose($fp);
 
