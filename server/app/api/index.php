@@ -1173,6 +1173,8 @@ class Api {
         $headers = getallheaders();
         if (isset($headers['connector-session-id'])) {
             return $headers['connector-session-id'];
+        }elseif (isset($_GET['connector-session-id'])) {
+            return $_GET['connector-session-id'];
         }
         return null;
     }
