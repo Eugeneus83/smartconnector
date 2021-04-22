@@ -587,6 +587,10 @@ class Api {
     
     public function markInvitationAsSent($profileId, $invitationId = null) {
         $invitationSentAt = time();
+        if (!$invitationId) {
+            // if user has been already connected, set invitation time as week before to not affect the limits
+            $invitationSentAt -= 3600 * 24 * 7;
+        }
         $insert = ['user_id' => $this->_userId, 'profile_id' => $profileId, 'invitation_sent_at' => $invitationSentAt];
         $update = ['invitation_sent_at' => $invitationSentAt];
         if ($invitationId) {
