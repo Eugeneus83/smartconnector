@@ -115,7 +115,8 @@ $(async function(){
             return false;
         }
         var peopleCount = readCampaignPeopleNumber(campaign['people'].length);
-        campaign['people'] = campaign['people'].slice(0, peopleCount);
+        var peopleStartingFrom = readCampaignPeopleStartingFrom(1);
+        campaign['people'] = campaign['people'].slice(peopleStartingFrom, peopleStartingFrom + peopleCount);
         if (campaign['people'].length == 0) {
             alert('People number must be greater than 0');
             return;
@@ -167,7 +168,8 @@ $(async function(){
                 alert('People number must be greater than 0');
                 return;
             }
-            people = people.slice(0, peopleCount);
+            var peopleStartingFrom = readCampaignPeopleStartingFrom(1);
+            people = people.slice(peopleStartingFrom, peopleStartingFrom + peopleCount);
             if (people.length > 0) {
                 var campaignId = $(this).attr('campaign_id');
                 workflow.editCampaign(campaignId, {'people': people}, function () {
@@ -1245,20 +1247,30 @@ function editPeopleCallback(campaignId, people = null) {
 }
 
 function readCampaignPeopleNumber(defaultNumber) {
+    return readCampaignNumber(defaultNumber, 'How many profiles to import?');
+}
+
+function readCampaignPeopleStartingFrom(defaultNumber) {
+    var number = readCampaignNumber(defaultNumber, 'Starting from position') - 1;
+    if (number < 0) number = 0;
+    return number;
+}
+
+function readCampaignNumber(defaultNumber, title) {
     do {
-        var peopleCount = prompt('How many profiles to import?', defaultNumber);
-        if (peopleCount === null) {
+        var answer = prompt(title, defaultNumber);
+        if (answer === null) {
             return 0;
         }
-        peopleCount = parseInt(peopleCount);
-        if (isNaN(peopleCount)) {
+        answer = parseInt(answer);
+        if (isNaN(answer)) {
             alert('Please input correct number');
         }else {
             break;
         }
     }while (true);
 
-    return peopleCount;
+    return answer;
 }
 
 function showConnectionsLimit(limitNumber) {
