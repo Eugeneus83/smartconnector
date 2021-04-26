@@ -229,6 +229,8 @@ $(async function(){
 
     $('a.upload-people-csv').click(function(e){
         e.preventDefault();
+        var $csvCollectedCount = $('#csv_collected_count');
+        $csvCollectedCount.hide();
         var $input = $(document.createElement("input"));
         $input.attr("type", "file").attr('accept', '.csv');
         $input.change(async function(){
@@ -241,7 +243,14 @@ $(async function(){
                     return;
                 }
                 var csvHeaders = {};
-                lines[0].split(";").forEach(function(field, index){
+                var delimiter;
+                if (lines[0].split(";").length > lines[0].split("\t").length) {
+                    delimiter = ';';
+                }else {
+                    delimiter = "\t";
+                }
+                var headersRow = lines[0].split(delimiter);
+                parseCsvRow(lines[0], delimiter).forEach(function(field, index){
                     csvHeaders[field.trim()] = index;
                 });
                 var $mapCsvWidget = $('div#search-people-step div#modal-map-people-csv');
@@ -259,7 +268,10 @@ $(async function(){
                 $('body').append($link);
                 $link.get(0).click();
                 $link.remove();
-                $mapCsvWidget.find('button.import').unbind('click').click(function(){
+                $mapCsvWidget.find('button.import').unbind('click').click(async function(){
+                    $csvCollectedCount.show();
+                    var $overlay = $('div.overlay2');
+                    $overlay.css('display', 'flex');
                     var columnNumbersByFieldName = {'public_id': null, 'first_name': null, 'last_name': null, 'company': null, 'custom_snippet_1': null, 'custom_snippet_2': null, 'custom_snippet_3': null};
                     for (var fieldName in columnNumbersByFieldName) {
                         var columnValue = $mapCsvWidget.find('#' + fieldName + '-column-value').text();
@@ -274,7 +286,7 @@ $(async function(){
                     var peopleList = [];
                     for (var i = 1; i < lines.length; i ++) {
                         if (!lines[i]) continue;
-                        var row = lines[i].split(";").map(function(x) {
+                        var row = parseCsvRow(lines[i], delimiter).map(function(x) {
                             return x.trim();
                         });
                         var profile = {};
@@ -285,8 +297,18 @@ $(async function(){
                             continue;
                         }
                         profile['public_id'] = profile['public_id'].replace(/^.+\/in\//, '').replace(/\/$/, '').trim();
-                        peopleList.push(profile);
+                        var profileBasic = await workflow.parseProfileBasic(profile['public_id']);
+                        for (var profileFieldName in profileBasic) {
+                            if (!profile[profileFieldName]) {
+                                profile[profileFieldName] = profileBasic[profileFieldName];
+                            }
+                        }
+                        if (profile['entity_id']) {
+                            peopleList.push(profile);
+                            $csvCollectedCount.find('number').text(peopleList.length);
+                        }
                     }
+                    $overlay.css('display', 'none');
                     $mapCsvWidget.find('button[data-modal-close]').click();
                     gotoCollectPeople(null, peopleList);
                 });
@@ -768,7 +790,7 @@ async function gotoCollectPeople(searchUrl, people = null){
         for (var i = 0; i < people.length; i ++) {
             addProfileToList(people[i]);
         }
-        updateProfilesNumber();
+        updateProfilesNumber(people.length);
         onCollectPeopleEnd();
     }
     $peopleStep.show();
@@ -894,9 +916,11 @@ function addProfileToList(profile, $profileListBlock = null, full = true) {
     }
 }
 
-function updateProfilesNumber() {
-    $parentBlock = $peopleStep.is(":visible")?$peopleStep:$campaignDetail;
-    var profilesCount = $parentBlock.find('.user-body__list .user-body__item').length;
+function updateProfilesNumber(profilesCount = null) {
+    if (!profilesCount) {
+        $parentBlock = $peopleStep.is(":visible") ? $peopleStep : $campaignDetail;
+        profilesCount = $parentBlock.find('.user-body__list .user-body__item').length;
+    }
     $('span.result-collected__number').text(profilesCount);
     $('div.all-people number').text(profilesCount);
 }
@@ -1014,12 +1038,6 @@ function collectCampaignPeople() {
             'last_name': $this.find('input.last_name').val(), 'company': $this.find('input.company').val(), 'job_title': $this.find('input.job_title').val(), 'picture': $this.find('img.user-avatar').attr('orig-src'),
             'custom_snippet_1': $this.find('input.custom_snippet_1').val(), 'custom_snippet_2': $this.find('input.custom_snippet_2').val(), 'custom_snippet_3': $this.find('input.custom_snippet_3').val()};
         if ($this.attr('profile-id')) followup['profile_id'] = $this.attr('profile-id');
-        if (!profile['entity_id']) {
-            var publicId = $this.find('input.public_id').val()
-            if (publicId) {
-                profile['entity_id'] = await workflow.getProfileEntity(publicId);
-            }
-        }
         if (profile['entity_id']) {
             people.push(profile);
         }
@@ -1283,6 +1301,15 @@ function showMessagesLimit(limitNumber) {
     var $div = $campaignDetail.find('div.messages-limits');
     $div.find('number').text(limitNumber);
     $div.show();
+}
+
+function parseCsvRow(line, delimiter) {
+    var csv = [];
+    var row = line.split(delimiter);
+    for (var i = 0; i < row.length; i ++) {
+        csv.push(row[i].replace(/^"/, '').replace(/"$/, '').trim());
+    }
+    return csv;
 }
 
 function addslashes( str ) {

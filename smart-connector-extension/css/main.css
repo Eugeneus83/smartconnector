@@ -2706,15 +2706,11 @@ textarea.input-error {
 
 .overlay {
   position: absolute;
-
   display: none;
-
   justify-content: center;
   align-items: center;
-
   width: 500px;
   height: 682px;
-
   background: rgba(0, 0, 0, 0.7);
 }
 
@@ -2725,6 +2721,22 @@ textarea.input-error {
 
 .loading {
   margin-left: 40px;
+}
+
+.overlay2 {
+  position: absolute;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  width: 500px;
+  height: 682px;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 90001;
+}
+
+.overlay2 .icon-spin6 {
+  font-size: 4rem;
+  color: #1bb55c;
 }
 
 .connection-limits, .messages-limits {
@@ -2769,4 +2781,8 @@ a#people-export {
   width:100%;
   text-align:center;
   font-style: italic;
+}
+
+#csv_collected_count {
+  font-weight: bold;
 }

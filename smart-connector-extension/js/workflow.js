@@ -814,13 +814,27 @@ function Workflow() {
         }
     }
 
-    this.getProfileEntity = async function(publicId) {
+    this.parseProfileBasic = async function(publicId) {
+        var profile = {};
         var url = linkedinDomain + '/voyager/api/identity/profiles/' + publicId;
         var response = await getData(url, await getHttpHeaders());
         if (response.data && response.data.entityUrn) {
-            return response.data.entityUrn.replace('urn:li:fs_profile:', '').trim();
+            profile.entity_id = response.data.entityUrn.replace('urn:li:fs_profile:', '').trim();
+            for (var key in response.included) {
+                var included = response.included[key];
+                if (included.picture && included.picture.artifacts && included.picture.artifacts.length > 0) {
+                    profile.picture = included.picture.artifacts[0].fileIdentifyingUrlPathSegment?included.picture.rootUrl + included.picture.artifacts[0].fileIdentifyingUrlPathSegment:'';
+                }
+                if (included.occupation) {
+                    profile.job_title = included.occupation;
+                    var company = profile.job_title.replace(/^.+\s+at\s+/gi, '').trim();
+                    if (company != profile.job_title) {
+                        profile.company = company;
+                    }
+                }
+            }
         }
-        return null;
+        return profile;
     }
 
     var sendConnectionMessage = async function (entityId, text, files, callback) {

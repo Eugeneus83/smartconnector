@@ -397,7 +397,6 @@
             <a href="#" class="btn btn-next" id="collect-people"> Start Collecting People</a>
           </div>
 
-          <!--
           <span class="or">or</span>
           <a
                   href="#"
@@ -408,7 +407,7 @@
             <br />
             <span>Choose one</span>
           </a>
-          -->
+
           <div
                   data-modal
                   id="modal-map-people-csv"
@@ -434,6 +433,7 @@
                   Help us understand your data. For each field, <br />
                   choose the corresponding column from the CSV
                 </p>
+                <span id="csv_collected_count">Profiles collected: <number></number></span>
                 <button
                         class="bx--modal-close"
                         type="button"
@@ -1487,6 +1487,9 @@
     <script src="js/carbon-components.min.js"></script>
     <!-- LOADING OVERLAY -->
     <div class="overlay">
+      <i class="animate-spin icon-spin6"></i>
+    </div>
+    <div class="overlay2">
       <i class="animate-spin icon-spin6"></i>
     </div>
   </body>
