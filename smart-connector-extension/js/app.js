@@ -1033,7 +1033,7 @@ function collectCampaignPeople() {
     var people = [];
     $peopleStep.find('.user-body__list .user-body__item').each(async function () {
         var $this = $(this);
-        var profile = {'entity_id': $this.find('input.entity_id').val(), 'first_name': $this.find('input.first_name').val(),
+        var profile = {'entity_id': $this.find('input.entity_id').val(), 'public_id': $this.find('input.public_id').val(), 'first_name': $this.find('input.first_name').val(),
             'last_name': $this.find('input.last_name').val(), 'company': $this.find('input.company').val(), 'job_title': $this.find('input.job_title').val(), 'picture': $this.find('img.user-avatar').attr('orig-src'),
             'custom_snippet_1': $this.find('input.custom_snippet_1').val(), 'custom_snippet_2': $this.find('input.custom_snippet_2').val(), 'custom_snippet_3': $this.find('input.custom_snippet_3').val()};
         if ($this.attr('profile-id')) followup['profile_id'] = $this.attr('profile-id');
