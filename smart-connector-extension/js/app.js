@@ -243,13 +243,11 @@ $(async function(){
                     return;
                 }
                 var csvHeaders = {};
-                var delimiter;
-                if (lines[0].split(";").length > lines[0].split("\t").length) {
-                    delimiter = ';';
-                }else {
-                    delimiter = "\t";
+                var delimiter = getCsvDelimiter(lines[0]);
+                if (!delimiter) {
+                    alert('Unknown columns delimiter. Please use ";" or "," or "tab" as csv column delimiter');
+                    return;
                 }
-                var headersRow = lines[0].split(delimiter);
                 parseCsvRow(lines[0], delimiter).forEach(function(field, index){
                     csvHeaders[field.trim()] = index;
                 });
@@ -1303,11 +1301,32 @@ function showMessagesLimit(limitNumber) {
     $div.show();
 }
 
+function getCsvDelimiter(headLine) {
+    var delimiters = [',', ';', '\t'];
+    var maxColNumber = 0;
+    var headers, delimiter;
+    for (var i = 0; i < delimiters.length; i ++) {
+        headers = parseCsvRow(headLine, delimiters[i]);
+        if (headers.length > maxColNumber) {
+            delimiter = delimiters[i];
+            maxColNumber = headers.length;
+        }
+    }
+    return delimiter;
+}
+
 function parseCsvRow(line, delimiter) {
     var csv = [];
     var row = line.split(delimiter);
+    var column;
     for (var i = 0; i < row.length; i ++) {
-        csv.push(row[i].replace(/^"/, '').replace(/"$/, '').trim());
+        if (i < row.length - 1 && /^"/.test(row[i]) && /"$/.test(row[i]) === false && /"$/.test(row[i + 1]) && /^"/.test(row[i + 1]) === false) {
+            column = row[i] + delimiter + row[i + 1];
+            i ++;
+        }else {
+            column = row[i];
+        }
+        csv.push(column.replace(/^"/, '').replace(/"$/, '').trim());
     }
     return csv;
 }
