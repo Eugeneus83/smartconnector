@@ -302,6 +302,7 @@ $(async function(){
                             }
                         }
                         if (profile['entity_id']) {
+                            profile['public_id'] = profileBasic['public_id'];
                             peopleList.push(profile);
                             $csvCollectedCount.find('number').text(peopleList.length);
                         }

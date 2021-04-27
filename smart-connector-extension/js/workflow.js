@@ -832,6 +832,9 @@ function Workflow() {
                         profile.company = company;
                     }
                 }
+                if (included.publicIdentifier) {
+                    profile.public_id = included.publicIdentifier;
+                }
             }
         }
         return profile;
