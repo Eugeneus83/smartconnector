@@ -720,6 +720,13 @@ class Api {
             $this->checkCampaignPermission($campaignId);
             $sql = "DELETE FROM `campaign_profile` WHERE `campaign_id` = ?i AND `profile_id` = ?i";
             $this->_db->query($sql, $campaignId, $profileId);
+
+            $userCampaignIds = array_keys($this->getCampaignList(['user_id' => $this->_userId]));
+            $sql = "SELECT `id` FROM `campaign_profile` WHERE `profile_id` = ?i AND `campaign_id` != ?i AND `campaign_id` IN ( ?a ) LIMIT 1";
+            if (!$this->_db->getOne($sql, $profileId, $campaignId, $userCampaignIds)) {
+                $sql = "DELETE FROM `user_profile` WHERE `user_id` = $this->_userId AND `profile_id` = ?i";
+                $this->_db->query($sql, $profileId);
+            }
             return ['success' => 1];
         }
         return ['success' => 0];
