@@ -724,7 +724,7 @@ class Api {
             $userCampaignIds = array_keys($this->getCampaignList(['user_id' => $this->_userId]));
             $sql = "SELECT `id` FROM `campaign_profile` WHERE `profile_id` = ?i AND `campaign_id` != ?i AND `campaign_id` IN ( ?a ) LIMIT 1";
             if (!$this->_db->getOne($sql, $profileId, $campaignId, $userCampaignIds)) {
-                $sql = "DELETE FROM `user_profile` WHERE `user_id` = $this->_userId AND `profile_id` = ?i";
+                $sql = "DELETE FROM `user_profile` WHERE `user_id` = $this->_userId AND `profile_id` = ?i AND (`invitation_sent_at` IS NULL OR `invitation_sent_at` < ". (time() - 3600 * 24). ")";
                 $this->_db->query($sql, $profileId);
             }
             return ['success' => 1];
