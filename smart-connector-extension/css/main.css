@@ -1812,6 +1812,7 @@ main .users .user-body__list .user-body__item .user-avatar {
   margin-right: 17px;
   border: none;
   background-color: #f2f2f2;
+  border-radius: 100%;
 }
 main .users .user-body__list .user-body__item .user-name {
   width: 150px;
@@ -1862,6 +1863,8 @@ main
   color: #333333;
   border-bottom: 2px solid #22ae77;
   background-color: #fff;
+  font-size: 18px;
+  font-weight: 700;
 }
 main .tabs .bx--tabs__nav {
   overflow-x: hidden;
@@ -1873,7 +1876,7 @@ main .tabs a.bx--tabs__nav-link {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 167px;
+  width: 100%;
   margin: 0;
   background-color: #f5f5f5;
   padding: 0;
@@ -1909,20 +1912,21 @@ main #messages-step .long-button:hover {
 }
 main .tabs .tab-1-default div .time-stats,
 main .tabs .tab-3-default div .time-stats {
-  margin-top: 15px;
+  margin-top: 30px;
   margin-bottom: 15px;
 }
 main .tabs .tab-1-default div .time-stats .time-stats__desc,
 main .tabs .tab-3-default div .time-stats .time-stats__desc {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   text-align: center;
+  text-transform: uppercase;
 }
 main .tabs .tab-1-default div .time-stats-progress,
 main .tabs .tab-3-default div .time-stats-progress {
   display: flex;
   justify-content: space-around;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 main .tabs .tab-1-default div .time-stats-progress .stats-progress,
 main .tabs .tab-3-default div .time-stats-progress .stats-progress {
@@ -1945,7 +1949,7 @@ main
   .stats-progress
   .stats-progress__desc {
   font-size: 14px;
-  font-weight: 600;
+  padding-top: 5px;
 }
 main .tabs .tab-1-default div .time-stats__limits,
 main .tabs .tab-3-default div .time-stats__limits {
@@ -1953,11 +1957,10 @@ main .tabs .tab-3-default div .time-stats__limits {
 }
 main .tabs .tab-1-default div .time-stats__limits h3,
 main .tabs .tab-3-default div .time-stats__limits h3 {
-  padding-top: 7px;
-  padding-left: 12px;
+  padding: 20px 30px 0 30px;
   text-transform: uppercase;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 700;
 }
 main .tabs .tab-1-default div .time-stats__limits .time-stats__limits-container,
 main
@@ -1968,7 +1971,7 @@ main
   .time-stats__limits-container {
   display: flex;
   align-items: center;
-  padding: 7px;
+  padding: 0 30px;
   padding-bottom: 21px;
 }
 main
@@ -2089,7 +2092,12 @@ main .tabs .tab-3-default div .users .user-body__list {
 .user-limits a {
   color: #3CB371;
 }
-
+div.user-plan {
+  color: #333 !important;
+}
+div.user-plan name {
+  color: #1bb55c !important;
+}
 .table {
   display: block;
   width: 100%;
@@ -2685,6 +2693,7 @@ footer .btn.create-campaign:hover {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
+    height:auto !important;
   }
   .bx--tabs__nav.bx--tabs__nav--hidden {
     position: relative;
@@ -2785,4 +2794,12 @@ a#people-export {
 
 #csv_collected_count {
   font-weight: bold;
+}
+
+.bx--modal-footer button.bx--btn {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-left: 3rem;
+  font-size: 16px;
+  text-transform: uppercase;
 }

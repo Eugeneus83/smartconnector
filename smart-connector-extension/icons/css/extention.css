@@ -65,10 +65,10 @@
 .icon-cancel:before {
   content: "\23";
 } /* '#' */
-.icon-right-open-1:before {
+.icon-right-open:before {
   content: "\e75d";
 } /* '' */
-.icon-left-open-1:before {
+.icon-left-open:before {
   content: "\e800";
 } /* '' */
 .icon-cancel-circled:before {

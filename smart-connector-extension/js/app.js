@@ -365,7 +365,7 @@ async function buildCampaignList() {
 }
 
 function addCampaign(campaign) {
-    var $campaignLink = $('<a href="#">' + campaign['name'] + '<i class="icon-right-open"></i></a>');
+    var $campaignLink = $('<a href="#">' + campaign['name'] + '</a>');
     $campaignLink.addClass('main-campaign__item-select');
     var $campaignItem = $('<li/>').addClass('main-campaign__item').attr('campaign_id', campaign['id']).append($campaignLink).click(function(){
         loadCampaign(campaign['id']);

@@ -14,9 +14,9 @@ $(async function(){
 	}
 	var $widget = $('<div/>').attr('id', 'smartconnector-body').css('width', '500px').css('height', '690px').css('position', 'absolute').css('z-index', 99999).css('position', 'fixed');
     $widget.css('top', widgetPosition.top).css('left', widgetPosition.left);
-	var $widgetHeader = $('<header/>').css('height', '40px').css('cursor', 'move').css('text-align', 'center').css('background', '#696969');
-	var $widgetCloseLink = $('<a class="close" style="cursor:pointer;margin-top:10px;margin-left:5px">&#10006;</a>');
-	$widgetHeader.append('<h3 style="width:85%;float:left;padding-left:40px">Click To Drag</h3>').append($widgetCloseLink);
+	var $widgetHeader = $('<header/>').css('cursor', 'move').css('text-align', 'center').css('background', '#d4d4d4').css('padding', '10px 0px');
+	var $widgetCloseLink = $('<a class="close" style="cursor:pointer;display:inline-block;position: absolute;right: 15px;top: 16px;">&#10006;</a>');
+	$widgetHeader.append('<h3 style="line-height: 35px;text-transform: uppercase;font-weight: 600;font-size: 16px;">Click To Drag</h3>').append($widgetCloseLink);
 	$widget.append($widgetHeader).append('<iframe width="500px" height="690px" src="chrome-extension://' + chrome.runtime.id + '/index.html"></iframe>');
 	var $widgetFooter = $widgetHeader.clone().css('margin-top', '-10px');
 	$widgetFooter.find('a').remove();
