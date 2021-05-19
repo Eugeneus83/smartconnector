@@ -259,7 +259,7 @@ function Workflow() {
             var paramName = pair[0].replace(/^facet/, '').trim();
             if (paramName == 'keywords') {
                 if (!filter['keywords']) filter['keywords'] = [];
-                filter['keywords'] = rawParamValue;
+                filter['keywords'] = fixedEncodeURIComponent(rawParamValue);
             }else if (paramName == 'origin') {
                 filter['origin'] = rawParamValue;
             }else {

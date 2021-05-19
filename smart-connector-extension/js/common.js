@@ -203,3 +203,9 @@ function showErrors(errors = []) {
         alert(errors.join("\n"));
     }, 50);
 }
+
+function fixedEncodeURIComponent (str) {
+    return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+        return '%' + c.charCodeAt(0).toString(16);
+    });
+}
