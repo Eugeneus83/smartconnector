@@ -21,6 +21,7 @@ function Workflow() {
         }
         console.log("Running tasks: invite: " + taskList.invite.length + ', message: ' + taskList.followup.length + ', time: ' + d.getHours() + ':' + d.getMinutes());
         var hdrs = await getHttpHeaders();
+        updateProgress(taskList.progress);
         if (taskList.limits.invite) {
             showConnectionsLimit(taskList.limits.invite);
         }else if (taskList.invite) {

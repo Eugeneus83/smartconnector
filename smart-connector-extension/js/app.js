@@ -1,9 +1,10 @@
-var workflow, $campaignList, $progressBar, $createCampaignLink, $messagesStep, $searchPeopleStep, $h2Title, $goNext, $goBack, $navBack, $peopleStep, $campaignNameStep, $campaignName, $saveCampaignLink, $saveCampaignMessages, $editCampaignMessages, $changeCampaignStatus, $addCampaignPeople, $cancelCampaignMessages, $addPeopleToCampaign, $campaignDetail, $xDaysAfter, $addPeopleFromLinkedinSearch, $addPeopleFromSalesNavigator, $showLinkedinSearch, $applyLinkedinSearch, $collectPeopleLink, attachmentList = {};
+var workflow, $campaignList, $dayProgressBox, $progressBar, $createCampaignLink, $messagesStep, $searchPeopleStep, $h2Title, $goNext, $goBack, $navBack, $peopleStep, $campaignNameStep, $campaignName, $saveCampaignLink, $saveCampaignMessages, $editCampaignMessages, $changeCampaignStatus, $addCampaignPeople, $cancelCampaignMessages, $addPeopleToCampaign, $campaignDetail, $xDaysAfter, $addPeopleFromLinkedinSearch, $addPeopleFromSalesNavigator, $showLinkedinSearch, $applyLinkedinSearch, $collectPeopleLink, attachmentList = {};
 
 $(async function(){
     workflow = new Workflow();
     $campaignList = $('div#campaign-list');
     $campaignNameStep = $('div#campaign-name-step');
+    $dayProgressBox = $('div#day-progress');
     $campaignName = $('input#campaign-name');
     $messagesStep = $('#messages-step');
     $searchPeopleStep = $('#search-people-step');
@@ -355,6 +356,7 @@ async function buildCampaignList() {
     var json = await workflow.getCampaignList();
     $campaignList.attr('campaigns-limit', json['limit']);
     $campaignList.find('li.main-campaign__item').remove();
+    updateProgress(json['progress']);
     if (json['campaign_list'].length) {
         for (var i = 0; i < json['campaign_list'].length; i++) {
             addCampaign(json['campaign_list'][i]);
@@ -396,6 +398,7 @@ async function loadCampaign(campaignId, tabSelected = null) {
     $saveCampaignLink.hide();
     $createCampaignLink.hide();
     $campaignList.hide();
+    $dayProgressBox.hide();
     $h2Title.text(campaign.name);
     $navBack.show();
     $campaignDetail.attr('campaign_id', campaignId).attr('campaign_name', campaign.name);
@@ -605,6 +608,7 @@ function gotoCampaignList(){
     $campaignNameStep.hide();
     $saveCampaignLink.hide();
     $campaignList.show();
+    $dayProgressBox.show();
     $goNext.hide();
     $goBack.hide();
     $navBack.hide();
@@ -630,6 +634,7 @@ function gotoCampaignName() {
         return;
     }
     $campaignList.hide();
+    $dayProgressBox.hide();
     $messagesStep.hide();
     $createCampaignLink.hide();
     $campaignNameStep.show();
@@ -657,6 +662,7 @@ function gotoMessages(messages = null, callback = null) {
             return false;
         }
         $campaignList.hide();
+        $dayProgressBox.hide();
         $searchPeopleStep.hide();
         $createCampaignLink.hide();
         $progressBar.show();
@@ -712,6 +718,7 @@ async function gotoSearchPeople(campaignId) {
     $peopleStep.hide();
     $saveCampaignLink.hide();
     $campaignList.hide();
+    $dayProgressBox.hide();
     $createCampaignLink.hide();
     var searchUrl = await getCurrentUrl();
     if (searchUrl.indexOf(linkedinSearchUrl) > -1) {
@@ -774,6 +781,7 @@ async function gotoCollectPeople(searchUrl, people = null){
     }
     var session = await getCampaignSession();
     $campaignList.hide();
+    $dayProgressBox.hide();
     $searchPeopleStep.hide();
     $createCampaignLink.hide();
     if (!session.campaign.campaign_id) {
@@ -1288,6 +1296,11 @@ function readCampaignNumber(defaultNumber, title) {
     }while (true);
 
     return answer;
+}
+
+function updateProgress(progress = {}) {
+    $dayProgressBox.find('span.invite-progress').text(progress.invite);
+    $dayProgressBox.find('span.message-progress').text(progress.message);
 }
 
 function showConnectionsLimit(limitNumber) {

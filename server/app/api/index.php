@@ -313,7 +313,8 @@ class Api {
             $campaignList[] = ['id' => $campaignId, 'active' => $row['active'], 'name' => $row['name']];
         }
         $plan = $this->getPlan();
-        return ['campaign_list' => $campaignList, 'total' => count($campaignList), 'limit' => $plan['campaigns']];
+        $progress = ['invite' => $this->getInvitationsCount(24), 'message' => $this->getMessagesCount(24)];
+        return ['campaign_list' => $campaignList, 'total' => count($campaignList), 'limit' => $plan['campaigns'], 'progress' => $progress];
     }
     
     public function getCampaign($campaignId) {
@@ -427,7 +428,7 @@ class Api {
     }
 
     public function getTask() {       
-        $return = ['invite' => [], 'followup' => [], 'limits' => []];        
+        $return = ['invite' => [], 'followup' => [], 'limits' => [], 'progress' => []];
         $userCampaignList = $this->getCampaignList(['user_id' => $this->_userId, 'active' => 1]);        
         if (!count($userCampaignList)) {
             return ['success' => 0, 'errors' => ['You have no active campaigns']];
@@ -441,16 +442,16 @@ class Api {
         if (!$plan) {
             return ['success' => 0, 'errors' => ['Plan not found']];
         }
-        
-        $todaysInvitationsTotal = $this->getInvitationsCount(24);
-        if ($todaysInvitationsTotal > $plan['invitations']) {   
+
+        $return['progress']['invite'] = $this->getInvitationsCount(24);
+        if ($return['progress']['invite'] >= $plan['invitations']) {
             $return['limits']['invite'] = $plan['invitations'];
         }
-        
-        $todaysMessagesTotal = $this->getMessagesCount($userCampaignIds, 24);
-        if ($todaysMessagesTotal > $plan['messages']) {
+
+        $return['progress']['message'] = $this->getMessagesCount(24);
+        if ($return['progress']['message']  >= $plan['messages']) {
             $return['limits']['message'] = $plan['messages'];
-        }        
+        }
         
         if (!isset($return['limits']['invite'])) {            
             $sql = "SELECT MAX(`invitation_sent_at`) FROM `user_profile` WHERE `user_id` = $this->_userId";
@@ -939,7 +940,8 @@ class Api {
         return $this->_db->getOne($sql);
     }
     
-    private function getMessagesCount(array $campaignIds, $hours = 24) {
+    private function getMessagesCount($hours = 24) {
+        $campaignIds = array_keys($this->getCampaignList(['user_id' => $this->_userId]));
         $sql = "SELECT COUNT(*) FROM `followup_profile` AS `fp` 
          JOIN `followup` AS `f` ON f.id = fp.followup_id
          WHERE f.campaign_id IN (?a) AND fp.success = 1 AND fp.sent_at >= ". (time() - 3600 * $hours);
