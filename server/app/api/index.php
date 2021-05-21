@@ -258,12 +258,8 @@ class Api {
         }
         if (isset($data['active'])) {
             $active = (int)$data['active']?1:0;
-            if ($active && $this->getActiveCampaignsCount() > 0) {
-                $errors[] = 'You already have active campaigns. There cannot be more than 1 active campaign at the time. If you want to activate this campaign please turn others off.';
-            }else {
-                $this->updateCampaign($campaignId, ['active' => $active]);
-                $response['campaign_active'] = $active;
-            }
+            $this->updateCampaign($campaignId, ['active' => $active]);
+            $response['campaign_active'] = $active;
         }
         if (count($errors)) {
             return ['success' => 0, 'errors' => $errors];
@@ -457,16 +453,23 @@ class Api {
             $sql = "SELECT MAX(`invitation_sent_at`) FROM `user_profile` WHERE `user_id` = $this->_userId";
             $lastInvitationSent = $this->_db->getOne($sql);     
             $includeInvitations = $lastInvitationSent?(time() - $lastInvitationSent > INVITATION_DELAY):true;
-        
+
             if ($includeInvitations) {
-                $sql = "SELECT c.id AS `campaign_id`, c.connection_message, p.id AS `profile_id`, p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3 FROM `campaign` AS `c`
-                JOIN `campaign_profile` AS `cp` ON cp.campaign_id = c.id
-                JOIN `profile` AS `p` ON p.id = cp.profile_id
-                JOIN `user_profile` AS `up` ON up.profile_id = p.id AND up.user_id = $this->_userId
-                WHERE c.id IN (?a) AND c.active = 1 AND (up.invitation_sent_at IS NULL OR up.invitation_sent_at = 0) AND (up.accepted_at IS NULL OR up.accepted_at = 0) AND (up.invitation_error IS NULL OR up.invitation_error = 0) ORDER BY c.id ASC, p.id ASC LIMIT 1";
-                $row = $this->_db->getRow($sql, $userCampaignIds);
-                if ($row) {
-                    $return['invite'] = [$row];
+                $sql = "SELECT cp.campaign_id, MAX(`invitation_sent_at`) AS `latest_invitation_sent` FROM `user_profile` AS `up`
+                JOIN `campaign_profile` AS `cp` ON cp.profile_id = up.profile_id
+                WHERE `user_id` = $this->_userId AND `campaign_id` IN (?a) GROUP BY cp.campaign_id ORDER BY `latest_invitation_sent` ASC";
+                $campaignIdsSorted = array_column($this->_db->getAll($sql, $userCampaignIds), 'campaign_id');
+
+                if (count($campaignIdsSorted)) {
+                    $sql = "SELECT c.id AS `campaign_id`, c.connection_message, p.id AS `profile_id`, p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3 FROM `campaign` AS `c`
+                    JOIN `campaign_profile` AS `cp` ON cp.campaign_id = c.id
+                    JOIN `profile` AS `p` ON p.id = cp.profile_id
+                    JOIN `user_profile` AS `up` ON up.profile_id = p.id AND up.user_id = $this->_userId
+                    WHERE c.id IN (?a) AND c.active = 1 AND (up.invitation_sent_at IS NULL OR up.invitation_sent_at = 0) AND (up.accepted_at IS NULL OR up.accepted_at = 0) AND (up.invitation_error IS NULL OR up.invitation_error = 0) ORDER BY FIELD (c.id, ". (implode(',', $campaignIdsSorted)). "), p.id ASC LIMIT 1";
+                    $row = $this->_db->getRow($sql, $userCampaignIds);
+                    if ($row) {
+                        $return['invite'] = [$row];
+                    }
                 }
             }
         }
@@ -491,53 +494,63 @@ class Api {
 
             $includeMessages = $latestMessageSent > 0?(time() - $latestMessageSent > MESSAGES_DELAY):true;       
             if ($includeMessages) {
-                $sql = "SELECT `id`, `message`, `days_after_previous`, `send_immediately_when_replied` FROM `followup` WHERE `campaign_id` IN (?a) ORDER BY `sort_order` ASC";
+                $sql = "SELECT `id`, `campaign_id`, `message`, `days_after_previous`, `send_immediately_when_replied` FROM `followup` WHERE `campaign_id` IN (?a) ORDER BY `sort_order` ASC";
                 $followUps = [];
                 foreach ($this->_db->getAll($sql, $userCampaignIds) as $row) {
                     $row['attachments'] = array_values($this->getAttachments(['followup_id' => $row['id']], 'url'));
                     $followUps[] = $row;
                 }
-                $sql = "SELECT p.id, p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, cp.campaign_id, up.accepted_at, up.last_respond_at FROM `campaign_profile` AS `cp`
-                JOIN `profile` AS `p` ON p.id = cp.profile_id 
-                JOIN `user_profile` AS `up` ON up.profile_id = p.id AND up.user_id = $this->_userId
-                WHERE cp.campaign_id IN (?a) AND (up.accepted_at IS NOT NULL AND up.accepted_at > 0) AND (up.sent_in_work_at IS NULL OR (". time(). " - up.sent_in_work_at) > ". SAME_PERSON_MESSAGES_DELAY. ") ORDER BY p.id ASC";
 
-                $profiles = $this->_db->getAll($sql, $userCampaignIds);
-   
-                $followupList = [];    
-                foreach ($profiles as $profileRow) {
-                    $sendTime = $previousFollowUpSentAt = null;
-                    $acceptedAt = $profileRow['accepted_at'];
-                    foreach ($followUps as $followupRow) {
-                        if ($profileRow['last_respond_at'] && !$userCampaignList[$profileRow['campaign_id']]['keep_sending_messages']) {
-                            break;
+                $sql = "SELECT f.campaign_id, MAX(fp.sent_at) AS `latest_message_sent` FROM `followup` AS `f`
+                JOIN `followup_profile` AS `fp` ON fp.followup_id = f.id
+                WHERE f.campaign_id IN (?a) GROUP BY f.campaign_id ORDER BY `latest_message_sent` ASC";
+                $campaignIdsSorted = array_column($this->_db->getAll($sql, $userCampaignIds), 'campaign_id');
+
+                if (count($campaignIdsSorted)) {
+                    $sql = "SELECT p.id, p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, cp.campaign_id, up.accepted_at, up.last_respond_at FROM `campaign_profile` AS `cp`
+                    JOIN `profile` AS `p` ON p.id = cp.profile_id 
+                    JOIN `user_profile` AS `up` ON up.profile_id = p.id AND up.user_id = $this->_userId
+                    WHERE cp.campaign_id IN (?a) AND (up.accepted_at IS NOT NULL AND up.accepted_at > 0) AND (up.sent_in_work_at IS NULL OR (" . time() . " - up.sent_in_work_at) > " . SAME_PERSON_MESSAGES_DELAY . ") ORDER BY FIELD (cp.campaign_id, " . (implode(',', $campaignIdsSorted)) . "), p.id ASC";
+
+                    $profiles = $this->_db->getAll($sql, $userCampaignIds);
+                    $followupList = [];
+                    foreach ($profiles as $profileRow) {
+                        $sendTime = $previousFollowUpSentAt = null;
+                        $acceptedAt = $profileRow['accepted_at'];
+                        foreach ($followUps as $followupRow) {
+                            if ($followupRow['campaign_id'] != $profileRow['campaign_id']) {
+                                continue;
+                            }
+                            if ($profileRow['last_respond_at'] && !$userCampaignList[$profileRow['campaign_id']]['keep_sending_messages']) {
+                                break;
+                            }
+                            if (isset($existingProfileFollowUps[$followupRow['id']][$profileRow['id']])) {
+                                $existingProfileFollowUpRow = $existingProfileFollowUps[$followupRow['id']][$profileRow['id']];
+                                $previousFollowUpSentAt = $existingProfileFollowUpRow['sent_at'];
+                                $sendError = $existingProfileFollowUpRow['error'];
+                                if ($sendError) {
+                                    break;
+                                }
+                            } else {
+                                if ($followupRow['send_immediately_when_replied'] && $previousFollowUpSentAt && $profileRow['last_respond_at'] && $profileRow['last_respond_at'] > $previousFollowUpSentAt) {
+                                    $sendTime = $profileRow['last_respond_at'];
+                                } else {
+                                    $sendTime = ($previousFollowUpSentAt ? $previousFollowUpSentAt : $acceptedAt) + $followupRow['days_after_previous'] * 24 * 3600;
+                                }
+                                if ($sendTime <= time()) {
+                                    $followupList[$followupRow['campaign_id']][] = ['profile_id' => $profileRow['id'], 'public_id' => $profileRow['public_id'], 'followup_id' => $followupRow['id'], 'message' => $followupRow['message'], 'entity_id' => $profileRow['entity_id'], 'first_name' => $profileRow['first_name'],
+                                        'last_name' => $profileRow['last_name'], 'full_name' => $profileRow['first_name'] . ' ' . $profileRow['last_name'], 'company' => $profileRow['company'], 'custom_snippet_1' => $profileRow['custom_snippet_1'], 'custom_snippet_2' => $profileRow['custom_snippet_2'], 'custom_snippet_3' => $profileRow['custom_snippet_3'], 'attachments' => $followupRow['attachments'], 'send_at' => $sendTime];
+                                }
+                                break;
+                            }
                         }
-                        if (isset($existingProfileFollowUps[$followupRow['id']][$profileRow['id']])) {
-                            $existingProfileFollowUpRow = $existingProfileFollowUps[$followupRow['id']][$profileRow['id']];
-                            $previousFollowUpSentAt = $existingProfileFollowUpRow['sent_at'];
-                            $sendError = $existingProfileFollowUpRow['error'];
-                            if ($sendError) {
-                                break;                      
-                            }
-                        }else {           
-                            if ($followupRow['send_immediately_when_replied'] && $previousFollowUpSentAt && $profileRow['last_respond_at'] && $profileRow['last_respond_at'] > $previousFollowUpSentAt) {
-                                $sendTime = $profileRow['last_respond_at'];
-                            }else {
-                                $sendTime = ($previousFollowUpSentAt?$previousFollowUpSentAt:$acceptedAt) + $followupRow['days_after_previous'] * 24 * 3600;
-                            }
-                            if ($sendTime <= time()) {
-                                $followupList[] = ['profile_id' => $profileRow['id'], 'public_id' => $profileRow['public_id'], 'followup_id' => $followupRow['id'], 'message' => $followupRow['message'], 'entity_id' => $profileRow['entity_id'], 'first_name' => $profileRow['first_name'], 
-                                    'last_name' => $profileRow['last_name'], 'full_name' => $profileRow['first_name']. ' '. $profileRow['last_name'], 'company' => $profileRow['company'], 'custom_snippet_1' => $profileRow['custom_snippet_1'], 'custom_snippet_2' => $profileRow['custom_snippet_2'], 'custom_snippet_3' => $profileRow['custom_snippet_3'], 'attachments' => $followupRow['attachments'], 'send_at' => $sendTime];                          
-                            }
-                            break;
-                        }                
                     }
-                }  
-
-                if (count($followupList)) {
-                    $sendTimes = array_column($followupList, 'send_at');
-                    asort($sendTimes);
-                    $return['followup'][] = $followupList[array_keys($sendTimes)[0]];
+                    if (count($followupList)) {
+                        $followupList = array_shift($followupList);
+                        $sendTimes = array_column($followupList, 'send_at');
+                        asort($sendTimes);
+                        $return['followup'][] = $followupList[array_keys($sendTimes)[0]];
+                    }
                 }
             }
         }      
