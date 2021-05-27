@@ -521,7 +521,8 @@ class Api {
                             if ($followupRow['campaign_id'] != $profileRow['campaign_id']) {
                                 continue;
                             }
-                            if ($profileRow['last_respond_at'] && !$userCampaignList[$profileRow['campaign_id']]['keep_sending_messages']) {
+                            $keepSendingMessages = $userCampaignList[$profileRow['campaign_id']]['keep_sending_messages'];
+                            if ($profileRow['last_respond_at'] && !$keepSendingMessages) {
                                 break;
                             }
                             if (isset($existingProfileFollowUps[$followupRow['id']][$profileRow['id']])) {
@@ -539,7 +540,7 @@ class Api {
                                 }
                                 if ($sendTime <= time()) {
                                     $followupList[$followupRow['campaign_id']][] = ['profile_id' => $profileRow['id'], 'public_id' => $profileRow['public_id'], 'followup_id' => $followupRow['id'], 'message' => $followupRow['message'], 'entity_id' => $profileRow['entity_id'], 'first_name' => $profileRow['first_name'],
-                                        'last_name' => $profileRow['last_name'], 'full_name' => $profileRow['first_name'] . ' ' . $profileRow['last_name'], 'company' => $profileRow['company'], 'custom_snippet_1' => $profileRow['custom_snippet_1'], 'custom_snippet_2' => $profileRow['custom_snippet_2'], 'custom_snippet_3' => $profileRow['custom_snippet_3'], 'attachments' => $followupRow['attachments'], 'send_at' => $sendTime];
+                                        'last_name' => $profileRow['last_name'], 'full_name' => $profileRow['first_name'] . ' ' . $profileRow['last_name'], 'company' => $profileRow['company'], 'custom_snippet_1' => $profileRow['custom_snippet_1'], 'custom_snippet_2' => $profileRow['custom_snippet_2'], 'custom_snippet_3' => $profileRow['custom_snippet_3'], 'attachments' => $followupRow['attachments'], 'send_at' => $sendTime, 'keep_sending' => (int)$keepSendingMessages];
                                 }
                                 break;
                             }

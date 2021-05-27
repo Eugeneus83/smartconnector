@@ -340,12 +340,7 @@ $(async function(){
             }
         }, 300000);
 
-        setInterval(function () {
-            workflow.runTasks();
-        }, 60000);
-
         setTimeout(function(){
-            workflow.runTasks();
             checkMailbox();
             workflow.checkInvitations();
         }, 2000);
@@ -1211,6 +1206,10 @@ function checkMailbox() {
         if ($campaignDetail.is(":visible") && $campaignDetail.attr('campaign_id')) {
             updateCampaignStat($campaignDetail.attr('campaign_id'));
         }
+        workflow.runTasks();
+        setInterval(function () {
+            workflow.runTasks();
+        }, 60000);
     });
 }
 

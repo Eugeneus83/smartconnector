@@ -1,7 +1,8 @@
 function Workflow() {
-    var apiEndpoint = 'https://app.smartconnector.org/api';
+    var apiEndpoint = appMainUrl + '/api';
     this.serviceData = null;
     var this_ = this;
+    var conversationList = {};
 
     import('./tracking/invite.js').then(function(module){
         this_.generateInviteTrackingId = module.generate;
@@ -20,7 +21,6 @@ function Workflow() {
             return;
         }
         console.log("Running tasks: invite: " + taskList.invite.length + ', message: ' + taskList.followup.length + ', time: ' + d.getHours() + ':' + d.getMinutes());
-        var hdrs = await getHttpHeaders();
         updateProgress(taskList.progress);
         if (taskList.limits.invite) {
             showConnectionsLimit(taskList.limits.invite);
@@ -72,6 +72,17 @@ function Workflow() {
                 if (!task.profile_id) {
                     continue;
                 }
+                console.log('Task', task);
+                if (!task.keep_sending && conversationList[task.entity_id]){
+                    var lastestMessageAt = await getLatestMessageAt(conversationList[task.entity_id], task.entity_id);
+                    if (lastestMessageAt) {
+                        var updateLog = {};
+                        updateLog[task.entity_id] = {created_at: lastestMessageAt, thread_id: conversationList[task.entity_id]};
+                        doRequest('message/sync', 'post', updateLog);
+                        console.log('Already responded')
+                        return;
+                    }
+                }
                 task = await updateTaskProfile(task, task.message);
                 if (task.entity_id && task.message) {
                     setProfileInWork(task.profile_id);
@@ -99,30 +110,37 @@ function Workflow() {
         var stopCollecting = false;
         var baseMessagesUrl = linkedinDomain + '/voyager/api/messaging/conversations?keyVersion=LEGACY_INBOX';
         var messagesUrl = baseMessagesUrl + '&count=20&q=syncToken';
+        var matches;
         do {
             var conversationByFrom = {};
             var lastMessageDates = [];
+            var txt = await getData(messagesUrl, await getHttpHeaders(), 'text');
             var json = await getData(messagesUrl, await getHttpHeaders());
-            var conversationList = {};
             for (var i = 0; i < json.included.length; i ++) {
                 var included = json.included[i];
+                if (included.$type == 'com.linkedin.voyager.messaging.MessagingMember') {
+                    matches = included.entityUrn.match(/:\((.+),(.+)\)$/);
+                    conversationList[matches[2]] = matches[1];
+                }
                 if (included.$type == 'com.linkedin.voyager.messaging.Event') {
                     var createdAt = parseInt(included.createdAt / 1000);
                     if (lastChecked.timestamp && createdAt < lastChecked.timestamp) {
                         stopCollecting = true;
                     }else {
-                        var matches = included['*from'].match(/:\((.+),(.+)\)$/);
-                        conversationByFrom[matches[2].trim()] = {'conversation_id': matches[1].trim(), 'created_at': createdAt};
+                        matches = included['*from'].match(/:\((.+),(.+)\)$/);
+                        var entityId = matches[2].trim();
+                        conversationByFrom[matches[2].trim()] = {
+                            'conversation_id': matches[1].trim(),
+                            'created_at': createdAt
+                        };
+                        lastMessageDates.push(included.createdAt);
                     }
-                    lastMessageDates.push(included.createdAt);
-                }else if (included.$type == 'com.linkedin.voyager.messaging.Conversation') {
-                    conversationList[included.entityUrn.replace(/^urn:li:fs_conversation:/, '').trim()] = included.backendUrn.replace(/^urn:li:messagingThread:/, '').trim();
                 }
             }
             for (var entityId in conversationByFrom) {
                 if (entityId.toLowerCase() != 'unknown') {
                     respondedAtByPublicId[entityId] = {'created_at': conversationByFrom[entityId]['created_at']};
-                    var threadId = conversationList[conversationByFrom[entityId]['conversation_id']];
+                    var threadId = conversationByFrom[entityId]['conversation_id'];
                     if (threadId) {
                         respondedAtByPublicId[entityId]['thread_id'] = threadId;
                     }
@@ -889,6 +907,22 @@ function Workflow() {
         callback(report);
     }
 
+    var getLatestMessageAt = async function(conversationId, entityId) {
+        var sentAt = 0;
+        var json = await getData(linkedinDomain + '/voyager/api/messaging/conversations/' + conversationId + '/events?q=syncToken', await getHttpHeaders());
+        for (var inc of json.included) {
+           if (inc.$type == 'com.linkedin.voyager.messaging.Event') {
+               if (inc['*from'].indexOf(entityId) > -1) {
+                   var createdAt = inc.createdAt / 1000;
+                   if (createdAt > sentAt) {
+                       sentAt = createdAt;
+                   }
+               }
+           }
+        }
+        return sentAt;
+    }
+
     var updateFollowupStatus = async function(followupId, profileId, status, callback) {
         var response = await doRequest('message/sent/' + followupId + '/' + profileId, 'post', status);
         callback(response);
@@ -945,6 +979,14 @@ function Workflow() {
         }
     }
 
+    function setOwnEntityId(){
+        chrome.runtime.sendMessage({
+            action: 'getOwnEntityId'
+        }, function (response) {
+            ownEntityId = response;
+        });
+    }
+
     function getPrimaryIdentity(){
         return new Promise(function (resolve, reject) {
             chrome.runtime.sendMessage({
@@ -954,6 +996,7 @@ function Workflow() {
             });
         });
     }
+
 
     var sleep = async function(sec) {
         await new Promise(r => setTimeout(r, sec * 1000));

@@ -32,6 +32,10 @@ chrome.runtime.onMessage.addListener(function (content, sender, response) {
             chrome.tabs.query({currentWindow: true, active: true}, async function (tabs) {
                 response(await fetchServiceData(content.tabId));
             });
+        }else if (content.action == 'getOwnEntityId') {
+            chrome.tabs.query({currentWindow: true, active: true}, async function (tabs) {
+                response(await fetchOwnEntityId(tabs[0].id));
+            });
         }else if (content.action == 'getPrimaryIdentity') {
             chrome.tabs.query({currentWindow: true, active: true}, async function (tabs) {
                 response(await fetchPrimaryIdentity(tabs[0].id));
@@ -174,6 +178,31 @@ function fetchServiceData(tabId) {
         }, function(result) {
             var result = result[0];
             resolve({service_version: result[0], page_instance_id: result[1], width: result[2], height: result[3]});
+        });
+    });
+}
+
+function fetchOwnEntityId(tabId) {
+    return new Promise(function(resolve, reject){
+        chrome.tabs.executeScript(tabId, {
+            code: `
+                var entityId;
+                var codeNodes = document.querySelectorAll('code');
+                for (var i = 0; i < codeNodes.length; i++) {
+                    try {
+                        var json = JSON.parse(codeNodes[i].innerText.trim());
+                    }catch (e) {
+                        json = null;
+                    }
+                    if (json && json.data && json.data.publicContactInfo) {
+                        entityId = json.data['*miniProfile'].replace('urn:li:fs_miniProfile:', '').trim();
+                    }
+                } 
+                [entityId];         
+	        `
+        }, function(result) {
+            var result = result[0];
+            resolve(result[0]);
         });
     });
 }
