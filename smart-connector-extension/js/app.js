@@ -340,9 +340,13 @@ $(async function(){
             }
         }, 300000);
 
-        setTimeout(function(){
-            checkMailbox();
+        setTimeout(async function(){
+            await checkMailbox();
             workflow.checkInvitations();
+            workflow.runTasks();
+            setInterval(function () {
+                workflow.runTasks();
+            }, 60000);
         }, 2000);
     }
 });
@@ -1202,14 +1206,13 @@ function onPeopleSearch() {
 }
 
 function checkMailbox() {
-    workflow.checkMailbox(async function(){
-        if ($campaignDetail.is(":visible") && $campaignDetail.attr('campaign_id')) {
-            updateCampaignStat($campaignDetail.attr('campaign_id'));
-        }
-        workflow.runTasks();
-        setInterval(function () {
-            workflow.runTasks();
-        }, 60000);
+    return new Promise(function(resolve, reject){
+        workflow.checkMailbox(async function(){
+            if ($campaignDetail.is(":visible") && $campaignDetail.attr('campaign_id')) {
+                updateCampaignStat($campaignDetail.attr('campaign_id'));
+            }
+            resolve(true);
+        });
     });
 }
 
