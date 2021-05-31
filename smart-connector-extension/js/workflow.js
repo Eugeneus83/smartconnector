@@ -15,12 +15,23 @@ function Workflow() {
     });
 
     this.runTasks = async function(){
+        var cTab = await getCurrentTab();
+        var taskTabId = await getFromStoreExpiry('tasks_running_tab_id', 100);
+        if (taskTabId) {
+            if (taskTabId != cTab.id) {
+                console.log('Tasks running in another tab');
+                return;
+            }
+        }else {
+            console.log('New running task tab', cTab.id);
+        }
+        saveInStoreExpiry('tasks_running_tab_id', cTab.id, 100);
         var taskList = await getTasks();
         var d = new Date();
         if (!taskList.success) {
             return;
         }
-        console.log("Running tasks: invite: " + taskList.invite.length + ', message: ' + taskList.followup.length + ', time: ' + d.getHours() + ':' + d.getMinutes());
+        console.log("Running tasks: invite: " + taskList.invite.length + ', message: ' + taskList.followup.length + ', time: ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds());
         updateProgress(taskList.progress);
         if (taskList.limits.invite) {
             showConnectionsLimit(taskList.limits.invite);
@@ -87,7 +98,7 @@ function Workflow() {
                 if (task.entity_id && task.message) {
                     setProfileInWork(task.profile_id);
                     var message = replacePlaceHolders(task.message, task);
-                    console.log('Sending');
+                    console.log('Sending: ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds());
                     sendConnectionMessage(task.entity_id, message, task.attachments, function(result){
                         if (result) {
                             console.log('updating follow up');
@@ -98,6 +109,7 @@ function Workflow() {
                             console.log('Not sent');
                         }
                     });
+                    console.log('Log as sent');
                     markAsSent(task.followup_id, task.profile_id);
                 }
             }
@@ -220,8 +232,8 @@ function Workflow() {
                 throw new Error('User session not found');
             }
         }
-        var $overlay = $('div.overlay');
-        if (path != 'task/get' && path != 'invitation/latest' && path != 'message/latest') {
+        var $overlay = typeof($) !== 'undefined'?$('div.overlay'):null;
+        if ($overlay && path != 'task/get' && path != 'invitation/latest' && path != 'message/latest') {
             $overlay.css('display', 'flex');
         }
         var response = null;
@@ -232,7 +244,9 @@ function Workflow() {
         }else if (method == 'put') {
             response = await putData(endpoint, JSON.stringify(data), headers);
         }
-        $overlay.css('display', 'none');
+        if ($overlay) {
+            $overlay.css('display', 'none');
+        }
         return response;
     }
 
@@ -667,9 +681,9 @@ function Workflow() {
     }
 
     var updateTaskProfile = async function(task, msgText) {
-        var oldTask = Object.assign({}, task);;
-        if (!task.entity_id) {
-            var profileData = await parseProfileData(task.public_id);
+        var oldTask = Object.assign({}, task);
+        if (!task.first_name && !task.last_name) {
+            var profileData = await parseProfileData(task.entity_id);
             if (profileData) {
                 task.entity_id = profileData.entity_id;
                 if (!task.first_name) {

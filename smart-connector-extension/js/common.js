@@ -35,6 +35,22 @@ function deleteFromStore(key, callback) {
     chrome.storage.local.remove(key, callback);
 }
 
+function saveInStoreExpiry(key, value, seconds) {
+    saveInStore(key, {value: value, expiry: Date.now() + 1000 * seconds});
+}
+
+async function getFromStoreExpiry(key, seconds) {
+    var value = await getFromStore(key);
+    if (!value) {
+        return null;
+    }else if (!value.expiry || value.expiry < Date.now()) {
+        deleteFromStore(key);
+        return null;
+    }else {
+        return value.value;
+    }
+}
+
 function getCurrentUrl() {
     return new Promise(function(resolve, reject) {
         chrome.runtime.sendMessage({
@@ -55,6 +71,14 @@ function getCookie(cookieName) {
             }, function (response) {
                 resolve(response);
             });
+        });
+    });
+}
+
+function getCurrentTab() {
+    return new Promise(function(resolve, reject){
+        chrome.tabs.getCurrent(function(tab){
+            resolve(tab);
         });
     });
 }
