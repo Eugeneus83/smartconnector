@@ -1,0 +1,67 @@
+
+<html>
+<head>
+    <style type="text/css">
+        body {
+            text-align: center;
+        }
+        button {
+          width: 350px;
+          padding: 10px 0;
+          color: #fff;
+          text-transform: uppercase;
+          font-size: 18px;
+          background-color: #1bb55c;
+          border: none;
+          outline: none;
+          cursor: pointer;
+        }
+    </style>
+    <script src="js/client.js?onload=handleClientLoad"></script>
+    <script src="js/jquery.min.js"></script>
+
+    <script>
+        gapi.load('auth2', function(){});
+        var appStart = function() {
+            initSigninV2();
+        };
+
+        var initSigninV2 = function() {
+            auth2 = gapi.auth2.init({
+                client_id: '576904091404-94mnuv475fis4q2041rru67ick2qk8kd.apps.googleusercontent.com',
+                scope: 'email',
+                immediate: true
+            }).then(function(){
+
+            });
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signIn().then(function(googleUser) {
+                console.log('user signed in');
+                var profile = auth2.currentUser.get().getBasicProfile();
+                var user = {'id': profile.getId(), 'name': profile.getName(), 'firstName': profile.getGivenName(), 'lastName': profile.getFamilyName(), 'image': profile.getImageUrl(), 'email': profile.getEmail()};
+                console.log("User", user);
+                var dataInput = document.getElementById('profile');
+                dataInput.value = JSON.stringify(user);
+                dataInput.dispatchEvent(new Event("change"));
+            }, function(error) {
+                console.log('user failed to sign in');
+                var failInput = document.getElementById('fail')
+                failInput.value = '1';
+                failInput.dispatchEvent(new Event("change"));
+            });
+        };
+
+        $(function(){
+           $('button#login').parent().css('margin-top', $('body').height() /  2);
+        });
+    </script>
+</head>
+<body>
+<div>
+<p style="font-size: 14px">Please click "Login" to use your Google account</p>
+<button type="button" id="login" onclick="appStart()">Login</button>
+</div>
+<input type="hidden" id="profile" value="" />
+<input type="hidden" id="fail" value="" />
+</body>
+</html>
