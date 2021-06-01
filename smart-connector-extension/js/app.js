@@ -119,7 +119,7 @@ $(async function(){
         var peopleStartingFrom = readCampaignPeopleStartingFrom(1);
         campaign['people'] = campaign['people'].slice(peopleStartingFrom, peopleStartingFrom + peopleCount);
         if (campaign['people'].length == 0) {
-            alert('People number must be greater than 0');
+            showAlert('People number must be greater than 0');
             return;
         }
 
@@ -155,7 +155,7 @@ $(async function(){
             }
         }
 
-        alert('Campaign is created! To activate campaign please follow to "Activity" tab and press "Start campaign" button.');
+        showAlert('Campaign is created! To activate campaign please follow to "Activity" tab and press "Start campaign" button.');
 
         buildCampaignList();
         gotoCampaignList();
@@ -166,7 +166,7 @@ $(async function(){
         if (people.length > 0) {
             var peopleCount = readCampaignPeopleNumber(people.length);
             if (peopleCount === 0) {
-                alert('People number must be greater than 0');
+                showAlert('People number must be greater than 0');
                 return;
             }
             var peopleStartingFrom = readCampaignPeopleStartingFrom(1);
@@ -240,13 +240,13 @@ $(async function(){
             reader.onload = async function (e) {
                 var lines = e.target.result.split("\n");
                 if (!lines.length) {
-                    alert('File is empty');
+                    showAlert('File is empty');
                     return;
                 }
                 var csvHeaders = {};
                 var delimiter = getCsvDelimiter(lines[0]);
                 if (!delimiter) {
-                    alert('Unknown columns delimiter. Please use ";" or "," or "tab" as csv column delimiter');
+                    showAlert('Unknown columns delimiter. Please use ";" or "," or "tab" as csv column delimiter');
                     return;
                 }
                 parseCsvRow(lines[0], delimiter).forEach(function(field, index){
@@ -279,7 +279,7 @@ $(async function(){
                         }
                     }
                     if (columnNumbersByFieldName['public_id'] === null) {
-                        alert("Profile Url column is required");
+                        showAlert("Profile Url column is required");
                         return;
                     }
                     var peopleList = [];
@@ -357,11 +357,15 @@ async function buildCampaignList() {
     $campaignList.find('li.main-campaign__item').remove();
     updateProgress(json['progress']);
     if (json['campaign_list'].length) {
+        $('div.main-campaign__title p').hide();
         for (var i = 0; i < json['campaign_list'].length; i++) {
             addCampaign(json['campaign_list'][i]);
         }
     }else {
-        $('div.main-campaign__title p').text('No campaigns yet. Create your first campaign.');
+        var $createNewCampaignLink = $('<a/>').attr('href', '#').text('create your first campaign').click(function(){
+            $createCampaignLink.click();
+        });
+        $('div.main-campaign__title p').text('Hello ' + json.user.username + '. You have no campaigns yet').append('<br/>Please ').append($createNewCampaignLink);
     }
 }
 
@@ -492,6 +496,7 @@ async function loadCampaign(campaignId, tabSelected = null) {
             $changeCampaignStatus.hide();
         }
     }
+    $('main').css('height', '545px');
     $campaignDetail.show();
 
     loadCampaignPeople(campaign.profiles, true);
@@ -603,6 +608,7 @@ function setProfileAccepted(entityId) {
 }
 
 function gotoCampaignList(){
+    $('main').css('height', '500px');
     $peopleStep.hide();
     $campaignNameStep.hide();
     $saveCampaignLink.hide();
@@ -657,7 +663,7 @@ function gotoMessages(messages = null, callback = null) {
     }else {
         if (!$campaignName.val().trim()) {
             $campaignName.addClass('input-error');
-            alert('Please enter campaign name');
+            showAlert('Please enter campaign name');
             return false;
         }
         $campaignList.hide();
@@ -704,7 +710,7 @@ async function gotoSearchPeople(campaignId) {
             }
         });
         if (error) {
-            alert(error);
+            showAlert(error);
             return;
         }
         $progressBar.show();
@@ -892,7 +898,7 @@ function addProfileToList(profile, $profileListBlock = null, full = true) {
                     }
                 }
             }
-            $profileItem.find('.name').text((profile.first_name + ' ' + profile.last_name).trim());
+            $profileItem.find('.name span').text((profile.first_name + ' ' + profile.last_name).trim());
             $profileItem.find('.company').text(profile.company);
             if ($profileItem.attr('profile_id') && Object.keys(changed).length > 0) {
                 await workflow.editProfile($profileItem.attr('profile_id'), changed);
@@ -1291,7 +1297,7 @@ function readCampaignNumber(defaultNumber, title) {
         }
         answer = parseInt(answer);
         if (isNaN(answer)) {
-            alert('Please input correct number');
+            showAlert('Please input correct number');
         }else {
             break;
         }

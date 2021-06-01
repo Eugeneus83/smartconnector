@@ -6,8 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/carbon-components.min.css" />
   <link rel="stylesheet" href="icons/css/extention.css" />
+  <link rel="stylesheet" href="css/attention.css">
   <link rel="stylesheet" href="css/main.css" />
   <script src="js/jquery.min.js"></script>
+  <script src="js/attention.js"></script>
   <script src="js/config.js"></script>
   <script src="js/common.js"></script>
   <script src="js/workflow.js"></script>
@@ -35,6 +37,14 @@
 <main class="main-sign-up">
   <p class="main-sing-up__title"><a id="signin" href="#">Sign In</a> / <a id="signup" href="#">Sign Up</a></p>
   <form id="signinform">
+  <div class="signin-methods">
+    <div class="bx--form-item button">
+      <button type="button" class="bx--btn google">With Google</button>
+    </div>
+    <div class="bx--form-item button">
+      <button type="button" class="bx--btn login-password">With Login And Password</button>
+    </div>
+  </div>
   <div class="main-sign-up__form">
     <div class="bx--form-item form">
       <input
@@ -65,13 +75,13 @@
   <form id="signupform">
     <div class="main-sign-up__form">
       <div class="bx--form-item form">
-      <input
+        <input
               required
               name="username"
               type="text"
               class="bx--text-input bx--text-input--light"
               placeholder="User Name"
-      />
+        />
       </div>
 
       <div class="bx--form-item form">
@@ -135,7 +145,7 @@
         Your current plan: <name></name>
       </div>
       <div class="main-sign-up__btns-block">
-      <button type="button" class="btn btn-upgrade change-plan-link">Upgrade</button>
+      <button type="button" class="btn btn-upgrade">Upgrade</button>
       </div>
     </div>
   </form>

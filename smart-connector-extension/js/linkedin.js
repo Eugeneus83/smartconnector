@@ -6,11 +6,11 @@ $(async function(){
 
 	var widgetPosition = await sendAppMessage('getCurrentWidgetPosition');
 	if (!widgetPosition) {
-		widgetPosition = {top: 10, left: 10};
+		widgetPosition = {top: 50, left: 30};
 	}
 	var labelPosition = await sendAppMessage('getCurrentLabelPosition');
 	if (!labelPosition) {
-		labelPosition = {top: 10, left: 10};
+		labelPosition = {top: 10, left: 30};
 	}
 	var $widget = $('<div/>').attr('id', 'smartconnector-body').css('width', '500px').css('height', '690px').css('position', 'absolute').css('z-index', 99999).css('position', 'fixed');
     $widget.css('top', widgetPosition.top).css('left', widgetPosition.left);

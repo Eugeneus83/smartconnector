@@ -8,7 +8,7 @@ RewriteRule ^.*$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 Header add Access-Control-Allow-Origin "*"
 Header add Access-Control-Allow-Methods "POST, GET, OPTIONS, DELETE, PUT"
 Header add Access-Control-Max-Age "0"
-Header add Content-Security-Policy "default-src *; connect-src *; script-src *; object-src *;"
+Header add Content-Security-Policy "default-src *; style-src 'self' 'unsafe-inline'; connect-src *; script-src * https: 'unsafe-inline'; object-src *;"
 Header add X-Content-Security-Policy: "default-src *; connect-src *; script-src *; object-src *;"
 Header add X-Webkit-CSP "default-src *; connect-src *; script-src 'unsafe-inline' 'unsafe-eval' *; object-src *;"
 

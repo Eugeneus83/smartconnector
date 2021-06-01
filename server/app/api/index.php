@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 require dirname(__DIR__). '/config.php';
 require CLASSES_DIR. '/mysql.class.php';
@@ -6,15 +6,15 @@ require CLASSES_DIR. '/mysql.class.php';
 set_time_limit(0);
 
 $result = [];
-try {        
+try {
     $api = new Api();
 
     $model = isset($_GET['model'])?$_GET['model']:false;
     $action = isset($_GET['action'])?$_GET['action']:false;
-    $ids = isset($_GET['ids'])?array_map('trim', explode('/', $_GET['ids'])):false; 
+    $ids = isset($_GET['ids'])?array_map('trim', explode('/', $_GET['ids'])):false;
     $id = $ids[0];
     $id2 = isset($ids[1])?$ids[1]:null;
-    
+
     if ($model == 'user') {
         if ($action == 'login') {
             $result = $api->login($api->getPostData(true));
@@ -37,9 +37,9 @@ try {
                 if ($action == 'delete') {
                     $result = $api->deleteCampaign($id);
                 }else {
-                    $data = $api->getPostData(true);  
+                    $data = $api->getPostData(true);
                     if ($action == 'add') {
-                        $result = $api->addCampaign($data);               
+                        $result = $api->addCampaign($data);
                     }elseif ($action == 'edit') {
                         $result = $api->editCampaign($id, $data);
                     }
@@ -109,12 +109,12 @@ class Api {
     private $_user;
     private $_userId;
     private $_defaultPlanId = 1;
-    
+
     function __construct() {
-        $this->_db = new SafeMySQL(array('host' => DB_HOST, 'user' => DB_USER, 'pass' => DB_PASSWORD, 'db' => DB_DATABASE));  
+        $this->_db = new SafeMySQL(array('host' => DB_HOST, 'user' => DB_USER, 'pass' => DB_PASSWORD, 'db' => DB_DATABASE));
         $this->_db->query("SET NAMES utf8mb4");
     }
-    
+
     public function checkUser() {
         $sessionId = $this->getSessionId();
         if (!$sessionId) {
@@ -131,9 +131,9 @@ class Api {
                 $this->_user['plan'] = null;
             }
         }
-        $this->_userId = $user['id'];  
+        $this->_userId = $user['id'];
     }
-    
+
     public function getUser() {
         $sql = "SELECT `username`, `email`, `created_at` FROM `user` WHERE `id` = $this->_userId";
         $return = $this->_db->getRow($sql);
@@ -145,10 +145,10 @@ class Api {
         }
         return $return;
     }
-    
+
     public function addCampaign(array $campaign) {
         $errors = [];
-        $userCampaignList = $this->getCampaignList(['user_id' => $this->_userId]); 
+        $userCampaignList = $this->getCampaignList(['user_id' => $this->_userId]);
         $plan = $this->getPlan();
         if (count($userCampaignList) >= $plan['campaigns']) {
             return ['success' => 0, 'errors' => ['Sorry you cannot create more campaigns. Please change plan']];
@@ -162,7 +162,7 @@ class Api {
         }
         if ($this->isCampaignExists($campaign['name'], $this->_userId)) {
             $errors[] = 'Campaign already exists. Try different campaign name';
-        }      
+        }
         if (!count($errors)) {
             $entityIds = array_column($campaign['people'], 'entity_id');
             if (!isset($campaign['allow_duplicate'])) {
@@ -173,7 +173,7 @@ class Api {
             }
             $campaign['people'] = array_combine($entityIds, array_values($campaign['people']));
             $campaignMessages = $campaign['messages'];
-            $campaignData = ['name' => $campaign['name'], 'user_id' => $this->_userId, 'connection_message' => isset($campaignMessages['connection']) && $campaignMessages['connection']?$campaignMessages['connection']:null, 
+            $campaignData = ['name' => $campaign['name'], 'user_id' => $this->_userId, 'connection_message' => isset($campaignMessages['connection']) && $campaignMessages['connection']?$campaignMessages['connection']:null,
                 'keep_sending_messages' => isset($campaignMessages['keep_sending_messages'])?$campaignMessages['keep_sending_messages']:0, 'created_at' => time()];
             $campaignId = $this->insertCampaign($campaignData);
             if (isset($campaign['messages']['followup'])) {
@@ -182,13 +182,13 @@ class Api {
                     if (trim($followUp['message'])) {
                         $followUp['sort_order'] = $sortOrder;
                         $followUp['campaign_id'] = $campaignId;
-                        $this->insertFollowUp($followUp);                            
+                        $this->insertFollowUp($followUp);
                         $sortOrder ++;
                     }
                 }
             }
             $profileIds = [];
-            foreach ($campaign['people'] as $profile) {    
+            foreach ($campaign['people'] as $profile) {
                 if (isset($profile['entity_id'])) {
                     $profileId = $this->insertProfileIfNotExists($profile);
                     if ($profileId) {
@@ -205,7 +205,7 @@ class Api {
             return ['success' => 0, 'errors' => $errors];
         }
     }
-    
+
     public function editCampaign($campaignId, array $data) {
         $this->checkCampaignPermission($campaignId);
         $errors = [];
@@ -221,13 +221,13 @@ class Api {
                 foreach ($data['messages']['followup'] as $followUp) {
                     $followUp['sort_order'] = $sortOrder;
                     if (isset($followUp['id']) && $followUp['id']) {
-                        $this->updateFollowUp($followUp['id'], $followUp);  
+                        $this->updateFollowUp($followUp['id'], $followUp);
                         unset($existingFollowUppList[$followUp['id']]);
                     }else {
                         if (trim($followUp['message'])) {
                             if ($followupCount <= MAX_FOLLOWUP_CAMPAIGN) {
                                 $followUp['campaign_id'] = $campaignId;
-                                $this->insertFollowUp($followUp); 
+                                $this->insertFollowUp($followUp);
                                 $followupCount ++;
                             }
                         }
@@ -269,7 +269,7 @@ class Api {
             return $response;
         }
     }
-    
+
     public function deleteCampaign($campaignId) {
         $this->checkCampaignPermission($campaignId);
         $sql = "SELECT `profile_id` FROM `campaign_profile` WHERE `campaign_id` = ?i";
@@ -280,7 +280,7 @@ class Api {
         }
         $sql = "DELETE FROM `campaign_profile` WHERE `campaign_id` = ?i";
         $this->_db->query($sql, $campaignId);
-        $sql = "SELECT `id` FROM `followup` WHERE `campaign_id` = ?i";           
+        $sql = "SELECT `id` FROM `followup` WHERE `campaign_id` = ?i";
         $followupIds = array_column($this->_db->getAll($sql, $campaignId), 'id');
         if (count($followupIds)) {
             $sql = "SELECT `id`, `file` FROM `attachment` WHERE `followup_id` IN (". implode(',', $followupIds). ")";
@@ -298,11 +298,11 @@ class Api {
             $this->_db->query($sql, $campaignId);
         }
         $sql = "DELETE FROM `campaign` WHERE `id` = ?i";
-        $this->_db->query($sql, $campaignId);  
-        
+        $this->_db->query($sql, $campaignId);
+
         return ['success' => 1];
     }
-    
+
     public function showCampaignList() {
         $campaignList = [];
         foreach ($this->getCampaignList(['user_id' => $this->_userId]) as $campaignId => $row) {
@@ -310,9 +310,9 @@ class Api {
         }
         $plan = $this->getPlan();
         $progress = ['invite' => $this->getInvitationsCount(24), 'message' => $this->getMessagesCount(24)];
-        return ['campaign_list' => $campaignList, 'total' => count($campaignList), 'limit' => $plan['campaigns'], 'progress' => $progress];
+        return ['campaign_list' => $campaignList, 'total' => count($campaignList), 'limit' => $plan['campaigns'], 'progress' => $progress, 'user' => $this->_user];
     }
-    
+
     public function getCampaign($campaignId) {
         $this->checkCampaignPermission($campaignId);
         $sql = "SELECT `name`, `connection_message`, `keep_sending_messages`, `active` FROM `campaign` WHERE `id` = ?i";
@@ -340,7 +340,7 @@ class Api {
             $campaign['plan'] = $plan;
             $campaign['limits'] = ['invite' => !is_null($this->_user['invitations_limit'])?$this->_user['invitations_limit']:$plan['invitations'], 'message' => !is_null($this->_user['messages_limit'])?$this->_user['messages_limit']:$plan['messages']];
         }
-        
+
         return $campaign;
     }
 
@@ -423,9 +423,9 @@ class Api {
         exit();
     }
 
-    public function getTask() {       
+    public function getTask() {
         $return = ['invite' => [], 'followup' => [], 'limits' => [], 'progress' => []];
-        $userCampaignList = $this->getCampaignList(['user_id' => $this->_userId, 'active' => 1]);        
+        $userCampaignList = $this->getCampaignList(['user_id' => $this->_userId, 'active' => 1]);
         if (!count($userCampaignList)) {
             return ['success' => 0, 'errors' => ['You have no active campaigns']];
         }
@@ -433,7 +433,7 @@ class Api {
         if (!count($userCampaignIds)) {
             return $return;
         }
-              
+
         $plan = $this->getPlan();
         if (!$plan) {
             return ['success' => 0, 'errors' => ['Plan not found']];
@@ -448,10 +448,10 @@ class Api {
         if ($return['progress']['message']  >= $plan['messages']) {
             $return['limits']['message'] = $plan['messages'];
         }
-        
-        if (!isset($return['limits']['invite'])) {            
+
+        if (!isset($return['limits']['invite'])) {
             $sql = "SELECT MAX(`invitation_sent_at`) FROM `user_profile` WHERE `user_id` = $this->_userId";
-            $lastInvitationSent = $this->_db->getOne($sql);     
+            $lastInvitationSent = $this->_db->getOne($sql);
             $includeInvitations = $lastInvitationSent?(time() - $lastInvitationSent > INVITATION_DELAY):true;
 
             if ($includeInvitations) {
@@ -474,12 +474,12 @@ class Api {
             }
         }
 
-        if (!isset($return['limits']['message'])) { 
+        if (!isset($return['limits']['message'])) {
             $existingProfileFollowUps = [];
             $sql = "SELECT fp.followup_id, fp.profile_id, fp.sent_at, fp.success, fp.error FROM `followup_profile` AS `fp`
             JOIN `followup` AS `f` ON f.id = fp.followup_id 
             WHERE f.campaign_id IN (?a) AND fp.sent_at IS NOT NULL";
-        
+
             $latestMessageSent = 0;
             foreach ($this->_db->getAll($sql, $userCampaignIds) as $row) {
                 $messageSentAt = $row['sent_at'];
@@ -492,7 +492,7 @@ class Api {
                 }
             }
 
-            $includeMessages = $latestMessageSent > 0?(time() - $latestMessageSent > MESSAGES_DELAY):true;       
+            $includeMessages = $latestMessageSent > 0?(time() - $latestMessageSent > MESSAGES_DELAY):true;
             if ($includeMessages) {
                 $sql = "SELECT `id`, `campaign_id`, `message`, `days_after_previous`, `send_immediately_when_replied` FROM `followup` WHERE `campaign_id` IN (?a) ORDER BY `sort_order` ASC";
                 $followUps = [];
@@ -502,10 +502,9 @@ class Api {
                 }
 
                 $sql = "SELECT f.campaign_id, MAX(fp.sent_at) AS `latest_message_sent` FROM `followup` AS `f`
-                JOIN `followup_profile` AS `fp` ON fp.followup_id = f.id
+                LEFT JOIN `followup_profile` AS `fp` ON fp.followup_id = f.id
                 WHERE f.campaign_id IN (?a) GROUP BY f.campaign_id ORDER BY `latest_message_sent` ASC";
                 $campaignIdsSorted = array_column($this->_db->getAll($sql, $userCampaignIds), 'campaign_id');
-
                 if (count($campaignIdsSorted)) {
                     $sql = "SELECT p.id, p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, cp.campaign_id, up.accepted_at, up.last_respond_at FROM `campaign_profile` AS `cp`
                     JOIN `profile` AS `p` ON p.id = cp.profile_id 
@@ -525,6 +524,9 @@ class Api {
                             if ($profileRow['last_respond_at'] && !$keepSendingMessages) {
                                 break;
                             }
+                            if ($_SERVER['REMOTE_ADDR'] == '93.78.3.149') {
+                                //var_dump(array_keys($existingProfileFollowUps[121]));
+                            }
                             if (isset($existingProfileFollowUps[$followupRow['id']][$profileRow['id']])) {
                                 $existingProfileFollowUpRow = $existingProfileFollowUps[$followupRow['id']][$profileRow['id']];
                                 $previousFollowUpSentAt = $existingProfileFollowUpRow['sent_at'];
@@ -532,7 +534,7 @@ class Api {
                                 if ($sendError) {
                                     break;
                                 }
-                            } else {
+                            }else {
                                 if ($followupRow['send_immediately_when_replied'] && $previousFollowUpSentAt && $profileRow['last_respond_at'] && $profileRow['last_respond_at'] > $previousFollowUpSentAt) {
                                     $sendTime = $profileRow['last_respond_at'];
                                 } else {
@@ -554,13 +556,13 @@ class Api {
                     }
                 }
             }
-        }      
-        
+        }
+
         $return['success'] = 1;
-        
-        return $return;        
+
+        return $return;
     }
-    
+
     public function syncUserMessages(array $timeLog) {
         if (count($timeLog)) {
             $sql = "SELECT `id`, `entity_id` FROM `profile` WHERE `entity_id` IN ( ?a )";
@@ -575,7 +577,7 @@ class Api {
         $this->_db->query($sql, time());
         return ['success' => 1];
     }
-    
+
     public function addFollowupLog($followupId, $profileId, array $sent) {
         $followup = $this->getFollowup($followupId);
         if (!$followup) {
@@ -595,11 +597,11 @@ class Api {
         $this->_db->query($sql, $insert, $insert['success'], $insert['error']);
         if (isset($sent['thread_id']) && $sent['thread_id']) {
             $sql = "UPDATE `user_profile` SET `thread_id` = ?s WHERE `profile_id` = ?i AND `user_id` = $this->_userId";
-            $this->_db->query($sql, $sent['thread_id'], $profileId); 
+            $this->_db->query($sql, $sent['thread_id'], $profileId);
         }
         return ['success' => 1];
     }
-    
+
     public function markInvitationAsSent($profileId, $invitationId = null) {
         $invitationSentAt = time();
         if (!$invitationId) {
@@ -613,29 +615,29 @@ class Api {
             $update['invitation_id'] = $invitationId;
         }
         $sql = "INSERT INTO `user_profile` SET ?u ON DUPLICATE KEY UPDATE ?u";
-        $this->_db->query($sql, $insert, $update);        
+        $this->_db->query($sql, $insert, $update);
         return ['success' => 1];
     }
-    
+
     public function setInvitationError($profileId, $errorId) {
         $sql = "UPDATE `user_profile` SET `invitation_error` = ?i WHERE `user_id` = $this->_userId AND `profile_id` = ?i";
         $this->_db->query($sql, $errorId, $profileId);
     }
-    
+
     public function getInvitationsCheckTime() {
         $sql = "SELECT IFNULL(`invites_checked_at`, `created_at`) FROM `user` WHERE `id` = $this->_userId";
         $checkedAt = $this->_db->getOne($sql);
         $since = $checkedAt && $checkedAt > 0?time() - $checkedAt:0;
         return ['timestamp' => $checkedAt, 'since' => $since];
     }
-    
+
     public function getMessageCheckTime() {
         $sql = "SELECT IFNULL(`messages_checked_at`, `created_at`) FROM `user` WHERE `id` = $this->_userId";
         $checkedAt = $this->_db->getOne($sql);
         $since = $checkedAt && $checkedAt > 0?time() - $checkedAt:0;
         return ['timestamp' => $checkedAt, 'since' => $since];
     }
-    
+
     public function fetchCampaignStat($campaignId) {
         $this->checkCampaignPermission($campaignId);
         $stat = $this->getCampaignStat($campaignId);
@@ -646,7 +648,7 @@ class Api {
             return ['success' => 0];
         }
     }
-        
+
     public function syncUserInvates(array $timeLog) {
         if (count($timeLog)) {
             $sql = "SELECT p.id, p.entity_id, up.accepted_at FROM `profile` AS `p` 
@@ -657,7 +659,7 @@ class Api {
                 $acceptedAt = $timeLog[$row['entity_id']]['accepted_at'];
                 if (!$acceptedAt) {
                     $acceptedAt = time();
-                }               
+                }
                 $sql = "INSERT INTO `user_profile` (`user_id`, `profile_id`, `public_id`, `accepted_at`) VALUES ( ?i, ?i, ?s, ?s ) ON DUPLICATE KEY UPDATE  `public_id` = ?s, `accepted_at` = ?s";
                 $this->_db->query($sql, $this->_userId, $row['id'], $publicId, $acceptedAt, $publicId, $acceptedAt);
             }
@@ -666,7 +668,7 @@ class Api {
         $this->_db->query($sql, time());
         return ['success' => 1];
     }
-    
+
     public function withdrawInvitation($profileId) {
         $errors = [];
         $sql = "SELECT `id`, `accepted_at` FROM `user_profile` WHERE `user_id` = $this->_userId AND `profile_id` = ?i";
@@ -684,14 +686,14 @@ class Api {
         }
         return ['success' => 0, 'errors' => $errors];
     }
-    
+
     public function saveFile(array $files) {
         if (count($files)) {
             $file = array_shift($files);
             $file['name'] = trim(preg_replace('/\?.*$/', '', $file['name']));
             $pathinfo = pathinfo($file['name']);
             $extension = strtolower($pathinfo['extension']);
-            if (in_array($extension, ['jpg', 'jpeg', 'gif', 'png', 'tiff', 'ai', 'psd', 'pdf', 'doc', 'docx', 'csv', 'zip', 'rar', 'ppt', 'pptx', 'pps', 'ppsx', 'odt', 'rtf', 'xls', 'xlsx', 'txt', 'pub', 'html', '7z', 'eml'])) {            
+            if (in_array($extension, ['jpg', 'jpeg', 'gif', 'png', 'tiff', 'ai', 'psd', 'pdf', 'doc', 'docx', 'csv', 'zip', 'rar', 'ppt', 'pptx', 'pps', 'ppsx', 'odt', 'rtf', 'xls', 'xlsx', 'txt', 'pub', 'html', '7z', 'eml'])) {
                 $newFileDir = MEDIA_DIR. '/'. $this->_userId. '/'. rand(1, 100);
                 if (!file_exists($newFileDir)) {
                    mkdir($newFileDir, 0777, true);
@@ -700,12 +702,12 @@ class Api {
                 copy($file['tmp_name'], $newFilePath);
                 if (file_exists($newFilePath)) {
                     return ['success' => 1, 'url' => $this->getAttachmentUrl($newFilePath)];
-                }            
+                }
             }
         }
         return ['success' => 0];
     }
-    
+
     public function deleteFile(array $data) {
         if (isset($data['url'])) {
             $filePath = str_replace($this->serverProtocol(). $_SERVER['HTTP_HOST'], MAIN_PATH, $data['url']);
@@ -714,8 +716,8 @@ class Api {
             }
         }
         return ['success' => 1];
-    }   
-    
+    }
+
     public function editProfile($profileId, array $data) {
         $upd = [];
         foreach (['entity_id', 'first_name', 'last_name', 'company', 'custom_snippet_1', 'custom_snippet_2', 'custom_snippet_3'] as $fieldName) {
@@ -729,7 +731,7 @@ class Api {
         }
         return ['success' => 1];
     }
-    
+
     public function deleteCampaignProfile($campaignId, $profileId) {
         if ($campaignId && $profileId) {
             $this->checkCampaignPermission($campaignId);
@@ -746,36 +748,48 @@ class Api {
         }
         return ['success' => 0];
     }
-    
+
     public function setProfileInWork($profileId) {
         $sql = "UPDATE `user_profile` SET `sent_in_work_at`  = ". time(). " WHERE `user_id` = $this->_userId AND `profile_id` = $profileId";
         $this->_db->query($sql);
         return ['success' => 1];
     }
-    
+
     public function login(array $data) {
         $errors = [];
         if (!isset($data['email']) || !isset($data['password'])) {
             $errors[] = 'Something is missing';
         }else {
-            $sql = "SELECT `id` FROM `user` WHERE `email` = ?s AND `password` = ?s";
-            $user = $this->findUser(['email' => $data['email'], 'password' => $data['password']]);
-            if (!$user) {
-                $errors[] = 'Account not found. Please check email and password.';
-            }else {
-                $sessionId = $this->generateSessionId($user['id']);
-                if (!$sessionId) {
-                    $errors[] = "Couldn't generate user session. Please try later";
+            if (isset($data['provider']) && $data['provider'] === 'google') {
+                $user = $this->findUser(['email' => $data['email']]);
+                if ($user) {
+                    if ($user['password'] != $data['password']) {
+                        $errors[] = 'E-mail '. $data['email']. ' is already registered. Please use another account';
+                    }
                 }else {
-                    $sql = "UPDATE `user` SET `session_id` = ?s WHERE `id` = ?i";
-                    $this->_db->query($sql, $sessionId, $user['id']);
-                    return ['success' => 1, 'session_id' => $sessionId];
+                    $user = ['id' => $this->createUser($data)];
+                }
+            }else {
+                $user = $this->findUser(['email' => $data['email'], 'password' => $data['password']]);
+            }
+            if (!count($errors)) {
+                if (!$user) {
+                    $errors[] = 'Account not found. Please check email and password.';
+                } else {
+                    $sessionId = $this->generateSessionId($user['id']);
+                    if (!$sessionId) {
+                        $errors[] = "Couldn't generate user session. Please try later";
+                    } else {
+                        $sql = "UPDATE `user` SET `session_id` = ?s WHERE `id` = ?i";
+                        $this->_db->query($sql, $sessionId, $user['id']);
+                        return ['success' => 1, 'session_id' => $sessionId];
+                    }
                 }
             }
         }
         return ['success' => 0, 'errors' => $errors];
     }
-    
+
     public function register(array $data) {
         $errors = [];
         foreach (['email', 'username', 'password'] as $fieldName) {
@@ -801,12 +815,12 @@ class Api {
                     return ['success' => 1, 'session_id' => session_id()];
                 }else {
                     $errors[] = 'Something is wrong. Please try later';
-                }               
+                }
             }
         }
         return ['success' => 0, 'errors' => $errors];
-    }    
-    
+    }
+
     public function confirmRegistration(array $data) {
         $errors = [];
         if (!isset($data['code']) || !$data['code']) {
@@ -826,8 +840,8 @@ class Api {
                     if ($userId = $this->createUser($_SESSION)) {
                         return ['success' => 1, 'user_id' => $userId];
                     }else {
-                        $errors[] = 'Something is wrong. Please try again later';     
-                    }            
+                        $errors[] = 'Something is wrong. Please try again later';
+                    }
                 }
             }else {
                 $errors[] = 'Wrong code. Please enter correct one';
@@ -835,7 +849,7 @@ class Api {
         }
         return ['success' => 0, 'errors' => $errors];
     }
-    
+
     public function resetPassword(array $data) {
         $errors = [];
         if (!isset($data['email']) || !$data['email']) {
@@ -847,17 +861,17 @@ class Api {
             }else {
                 session_start();
                 $_SESSION['email'] = $data['email'];
-                $_SESSION['code'] = $this->generateRandomCode();          
+                $_SESSION['code'] = $this->generateRandomCode();
                 if ($this->sendEmail($data['email'], "Your reset password code", "Reset password code: ". $_SESSION['code'])) {
                     return ['success' => 1];
                 }else {
-                    $errors[] = 'Something is wrong. Please try again later';  
+                    $errors[] = 'Something is wrong. Please try again later';
                 }
             }
         }
         return ['success' => 0, 'errors' => $errors];
     }
-    
+
     public function updatePassword(array $data) {
         $errors = [];
         foreach (['code', 'email', 'password'] as $fieldName) {
@@ -886,7 +900,7 @@ class Api {
         }
         return ['success' => 0, 'errors' => $errors];
     }
-    
+
     public function updateLimit(array $data) {
         $errors = [];
         $upd = [];
@@ -913,19 +927,19 @@ class Api {
         }
         return ['success' => 0, 'errors' => $errors];
     }
-    
+
     private function createUser(array $data) {
         $user = ['username' => $data['username'], 'email' => $data['email'], 'password' => $data['password'], 'created_at' => time()];
         $sql = "INSERT INTO `user` SET ?u";
         $this->_db->query($sql, $user);
         return $this->_db->insertId();
     }
-    
+
     private function updateUser($userId, array $data) {
         $sql = "UPDATE `user` SET ?u WHERE `id` = ?i";
         $this->_db->query($sql, $data, $userId);
     }
-    
+
     private function checkIfProfilesExist(array $entityIds) {
         $sql = "SELECT p.entity_id FROM `profile` AS `p`
             JOIN `campaign_profile` AS `cp` ON cp.profile_id = p.id
@@ -933,7 +947,7 @@ class Api {
             WHERE p.entity_id IN (?a)";
         return array_column($this->_db->getAll($sql, $entityIds), 'entity_id');
     }
-    
+
     private function getCampaignList(array $filter) {
         $return = [];
         $query = $this->buildSqlQuery('campaign', ['id', 'name', 'active', 'keep_sending_messages'], $filter);
@@ -942,18 +956,18 @@ class Api {
         }
         return $return;
     }
-    
+
     private function getPlan() {
         $planId = $this->_user['plan']?$this->_user['plan']['id']:$this->_defaultPlanId;
         $sql = "SELECT * FROM `plan` WHERE `id` = ?i";
         return $this->_db->getRow($sql, $planId);
     }
-        
+
     private function getInvitationsCount($hours = 24) {
         $sql = "SELECT COUNT(*) FROM `user_profile` WHERE `user_id` = $this->_userId AND `invitation_sent_at` >= ". (time() - 3600 * $hours);
         return $this->_db->getOne($sql);
     }
-    
+
     private function getMessagesCount($hours = 24) {
         $campaignIds = array_keys($this->getCampaignList(['user_id' => $this->_userId]));
         $sql = "SELECT COUNT(*) FROM `followup_profile` AS `fp` 
@@ -961,12 +975,12 @@ class Api {
          WHERE f.campaign_id IN (?a) AND fp.success = 1 AND fp.sent_at >= ". (time() - 3600 * $hours);
         return $this->_db->getOne($sql, $campaignIds);
     }
-    
+
     private function getActiveCampaignsCount() {
-        $sql = "SELECT COUNT(*) FROM `campaign` WHERE `user_id` = $this->_userId AND `active` = 1"; 
+        $sql = "SELECT COUNT(*) FROM `campaign` WHERE `user_id` = $this->_userId AND `active` = 1";
         return $this->_db->getOne($sql);
     }
-    
+
     private function getFollowUpList(array $fields, array $filter) {
         $return = [];
         $query = $this->buildSqlQuery('followup', $fields, $filter);
@@ -975,28 +989,28 @@ class Api {
         }
         return $return;
     }
-    
+
     private function getFollowUpCount($campaignId) {
         $sql = "SELECT COUNT(*) FROM `followup` WHERE `campaign_id` = ?i";
         return $this->_db->getOne($sql, $campaignId);
     }
-    
+
     private function getFollowup($followupId) {
         $sql = "SELECT * FROM `followup` WHERE `id` = ?i";
         return $this->_db->getRow($sql, $followupId);
-    }    
-    
+    }
+
     private function insertCampaign(array $data) {
         $sql = "INSERT INTO `campaign` SET ?u";
         $this->_db->query($sql, $data);
         return $this->_db->insertId();
     }
-    
+
     private function insertFollowUp($data) {
         $sql = "INSERT INTO `followup` SET ?u";
         $this->_db->query($sql, ['message' => $data['message'], 'days_after_previous' => $data['send_in_days'],
             'campaign_id' => $data['campaign_id'], 'send_immediately_when_replied' => isset($data['send_immediately_when_replied'])?$data['send_immediately_when_replied']:0, 'sort_order' => $data['sort_order']]);
-        $followUpId = $this->_db->insertId();  
+        $followUpId = $this->_db->insertId();
         if (isset($data['attachments'])) {
             foreach ($data['attachments'] as $attachmentUrl) {
                 $attachmentSPath = $this->getAttachmentShortPath($this->getAttachmentPath($attachmentUrl));
@@ -1004,7 +1018,7 @@ class Api {
             }
         }
     }
-    
+
     private function updateFollowUp($followUpId, array $data) {
         $sql = "UPDATE `followup` SET ?u WHERE `id` = ?i";
         $this->_db->query($sql, ['message' => $data['message'], 'days_after_previous' => $data['send_in_days'], 'send_immediately_when_replied' => $data['send_immediately_when_replied'], 'sort_order' => $data['sort_order']], $followUpId);
@@ -1021,7 +1035,7 @@ class Api {
             $this->deleteAttachment($attachmentId);
         }
     }
-    
+
     private function deleteFollowUp($followUpId) {
         foreach ($this->getAttachments(['followup_id' => $followUpId]) as $attachmentId => $attachmentSPath) {
             $this->deleteAttachment($attachmentId, $attachmentSPath);
@@ -1045,16 +1059,16 @@ class Api {
             }
         }
     }
-    
+
     private function getAttachments(array $filter, $mode = null) {
         $return = [];
         $query = $this->buildSqlQuery('attachment', ['id', 'file', 'followup_id'], $filter);
         foreach ($this->_db->getAll($query) as $row) {
-            if ($row['file']) {               
+            if ($row['file']) {
                 $attachmentPath = MEDIA_DIR. '/'. $row['file'];
                 if (file_exists($attachmentPath)) {
                     if ($mode == 'url') {
-                        $value = $this->getAttachmentUrl($attachmentPath);                       
+                        $value = $this->getAttachmentUrl($attachmentPath);
                     }else {
                         $value = $row['file'];
                     }
@@ -1064,21 +1078,21 @@ class Api {
         }
         return $return;
     }
-    
+
     private function insertAttachment(array $data) {
         $sql = "INSERT INTO `attachment` SET ?u";
         $data['created_at'] = time();
         $this->_db->query($sql, $data);
         return $this->_db->insertId();
     }
-    
+
     private function deleteAttachment($attachmentId, $file = null) {
         if (!$file) {
             $sql = "SELECT `file` FROM `attachment` WHERE `id` = ?i";
             $result = $this->_db->getRow($sql, $attachmentId);
             if ($result) {
                 $file = $result['file'];
-            }          
+            }
         }
         $fPath = MEDIA_DIR. '/'. $file;
         if (file_exists($fPath)) {
@@ -1087,17 +1101,17 @@ class Api {
         $sql = "DELETE FROM `attachment` WHERE `id` = ?i";
         $this->_db->query($sql, $attachmentId);
     }
-    
-    private function insertProfileIfNotExists($profile) {       
+
+    private function insertProfileIfNotExists($profile) {
         if (!isset($profile['entity_id'])) {
             return;
         }
         $sql = "SELECT `id` FROM `profile` WHERE `entity_id` = ?s";
-        $profileId = $this->_db->getOne($sql, $profile['entity_id']);     
+        $profileId = $this->_db->getOne($sql, $profile['entity_id']);
         if (!$profileId) {
             $sql = "INSERT INTO `profile` SET `entity_id` = ?s";
             $this->_db->query($sql, $profile['entity_id']);
-            $profileId = $this->_db->insertId();      
+            $profileId = $this->_db->insertId();
         }
         $insert = ['profile_id' => $profileId, 'user_id' => $this->_userId];
         foreach (['public_id', 'first_name', 'last_name', 'company', 'job_title', 'picture', 'custom_snippet_1', 'custom_snippet_2', 'custom_snippet_3'] as $fieldName) {
@@ -1105,7 +1119,7 @@ class Api {
                 $insert[$fieldName] = trim($profile[$fieldName]);
             }
         }
-        $update = [];        
+        $update = [];
         if (isset($insert['company']) && $insert['company']) {
             $update['company'] = $insert['company'];
         }
@@ -1125,10 +1139,10 @@ class Api {
             $sql = "INSERT INTO `user_profile` SET ?u ON DUPLICATE KEY UPDATE `id` = `id`";
             $this->_db->query($sql, $insert);
         }
-        
+
         return $profileId;
     }
-    
+
     private function insertCampaignProfiles($campaignId, array $profileIds) {
         $insert = [];
         foreach ($profileIds as $profileId) {
@@ -1139,20 +1153,20 @@ class Api {
             $this->_db->query($sql);
         }
     }
-    
-    private function findUser(array $fields) {        
+
+    private function findUser(array $fields) {
         foreach ($fields as $fieldName => $fieldValue) {
             $where[] = "`$fieldName` = ". $this->_db->escapeString($fieldValue);
         }
         $sql = "SELECT * FROM `user` WHERE ". implode(' AND ', $where);
         return $this->_db->getRow($sql);
-        
+
     }
-    
-    private function getCampaignStat($campaignId) {        
+
+    private function getCampaignStat($campaignId) {
         $sql = "SELECT IFNULL(SUM(IF(t.sent_at IS NULL, 0, 1)), 0) AS `messages_sent`, COUNT(*) AS `messages_total` FROM (SELECT `sent_at` FROM `followup` AS `f` 
          LEFT JOIN `followup_profile` AS `fp` ON fp.followup_id = f.id
-        WHERE f.campaign_id = ?i GROUP BY fp.profile_id) AS `t`";        
+        WHERE f.campaign_id = ?i GROUP BY fp.profile_id) AS `t`";
         $messagesStat =  $this->_db->getRow($sql, $campaignId);
         $sql = "SELECT IFNULL(SUM(IF(up.invitation_sent_at, 1, 0)), 0) AS `invitations_sent`, IFNULL(SUM(IF(up.accepted_at, 1, 0)), 0) AS `accepted`, IFNULL(SUM(IF(up.last_respond_at, 1, 0)), 0) AS `replied`, COUNT(*) AS `total` FROM `campaign_profile` AS `cp`
             JOIN `user_profile` AS `up` ON up.profile_id = cp.profile_id AND up.user_id = $this->_userId
@@ -1164,19 +1178,19 @@ class Api {
         }
         return $stat;
     }
-    
+
     private function isCampaignExists($name, $userId) {
         $sql = "SELECT `id` FROM `campaign` WHERE `name` = ?s AND `user_id` = ?i";
         return $this->_db->getOne($sql, $name, $userId)?true:false;
     }
-    
+
     private function checkCampaignPermission($campaignId) {
         $userCampaigns = $this->getCampaignList(['user_id' => $this->_userId]);
         if (!isset($userCampaigns[$campaignId])) {
             throw new Exception('You have no permission for this campaign');
         }
     }
-    
+
     private function generateSessionId($userId) {
         $sql = "SELECT `id`, `email`,  `password` FROM `user` WHERE `id` = ?i";
         $row = $this->_db->getRow($sql, $userId);
@@ -1184,16 +1198,16 @@ class Api {
             $attempt = 0;
             do {
                 $sessionId = md5($row['id']. $row['email']. $row['password']. time(). rand(1, 100000));
-                $sql = "SELECT `id` FROM `user` WHERE `session_id` = ?s";  
+                $sql = "SELECT `id` FROM `user` WHERE `session_id` = ?s";
                 $attempt ++;
             }while ($this->_db->getOne($sql, $sessionId) && $attempt < 20);
-            
+
             return $sessionId;
         }else {
             return null;
         }
     }
-    
+
     private function getSessionId() {
         $headers = getallheaders();
         if (isset($headers['connector-session-id'])) {
@@ -1203,15 +1217,15 @@ class Api {
         }
         return null;
     }
-    
+
     private function generateRandomCode() {
         $return = null;
         for ($i = 1; $i <= 6; $i ++) {
-            $return .= rand(1, 9);            
+            $return .= rand(1, 9);
         }
         return $return;
     }
-    
+
     public function getPostData($required = false) {
         $return = file_get_contents('php://input');
         $return = json_decode($return, true);
@@ -1219,32 +1233,32 @@ class Api {
             throw new Exception('Empty input data');
         }
         return $return?$return:[];
-    }   
-    
+    }
+
     private function updateCampaign($campaignId, array $data) {
         $sql = "UPDATE `campaign` SET ?u WHERE `id` = ?i";
         $this->_db->query($sql, $data, $campaignId);
     }
-    
+
     private function getAttachmentUrl($fPath) {
         return $this->serverProtocol(). $_SERVER['HTTP_HOST']. str_replace(MAIN_PATH, '', $fPath);
     }
-    
+
     private function getAttachmentPath($fUrl) {
         return str_replace($this->serverProtocol(). $_SERVER['HTTP_HOST'], MAIN_PATH, $fUrl);
     }
-    
+
     private function getAttachmentShortPath($fPath) {
         $fPath = str_replace(MEDIA_DIR, '', $fPath);
         $fPath = preg_replace('/^\//', '', $fPath);
         return $fPath;
     }
-    
+
     private function buildSqlQuery($table, $fields, array $filter) {
         if (!count($fields)) {
             return null;
         }
-        foreach ($fields as $key => $fieldName) $fields[$key] = "`$fieldName`";          
+        foreach ($fields as $key => $fieldName) $fields[$key] = "`$fieldName`";
         $sql = "SELECT ". implode(',', $fields). " FROM `$table`";
         $where = [];
         foreach ($filter as $fieldName => $fieldValue) {
@@ -1255,28 +1269,28 @@ class Api {
         }
         return $sql;
     }
-    
+
     private function generateInviteTrackingId() {
         $command = '/usr/bin/phantomjs  '. __DIR__. '/js/invite_tracking.js';
         $output = [];
         exec($command, $output);
         return $output[0];
     }
-    
+
     private function generateMessageTrackingId() {
         $command = '/usr/bin/phantomjs  '. __DIR__. '/js/message_tracking.js';
         $output = [];
         exec($command, $output);
         return $output[0];
     }
-    
+
     private function generateOriginToken() {
         $command = '/usr/bin/phantomjs  '. __DIR__. '/js/origintoken.js';
         $output = [];
         exec($command, $output);
         return $output[0];
     }
-    
+
     private function serverProtocol() {
         if(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) || isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&  $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')  {
             return 'https://';
@@ -1284,7 +1298,7 @@ class Api {
             return $protocol = 'http://';
         }
     }
-    
+
     private function sendEmail($mailTo, $subject, $html, $path = false) {
         require CLASSES_DIR. '/PHPMailer/src/Exception.php';
         require CLASSES_DIR. '/PHPMailer/src/PHPMailer.php';
@@ -1309,7 +1323,7 @@ class Api {
         }
         $mail->IsHTML(true);
         $mail->SMTPOptions = array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true));
-        
+
         return $mail->send();
     }
 

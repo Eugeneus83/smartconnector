@@ -1,6 +1,5 @@
 $(async function(){
 	var scraperTabs;
-
 	var $signinForm = $('form#signinform');
 	var $signupForm = $('form#signupform');
 	var $helloForm = $('form#hello');
@@ -9,6 +8,10 @@ $(async function(){
 	var $resetPasswordForm = $('form#reset-password');
 	var $signinLink = $('a#signin');
 	var $signupLink = $('a#signup');
+	var $signinMethods = $signinForm.find('.signin-methods');
+	var $signinAccount = $signinForm.find('.main-sign-up__form');
+	var $googleBtn = $signinForm.find('button.google');
+	var $loginPasswordBtn = $signinForm.find('button.login-password');
 	var $forgotPasswordLink = $('a#forgot-password');
 
 	var confirmationEmail = getCookie('confirmation_email');
@@ -38,7 +41,7 @@ $(async function(){
 			$helloForm.hide();
 			$confirmationForm.hide();
 			$signinForm.show();
-			alert('User not found, please login again');
+			showAlert('User not found, please login again');
 		}
 	}
 	$signinLink.click(function(){
@@ -46,6 +49,8 @@ $(async function(){
 		$signupLink.css('color', '#0000FF');
 		$signinForm.show();
 		$signupForm.hide();
+		$signinMethods.show();
+		$signinAccount.hide();
 		$forgotPasswordForm.hide();
 		$resetPasswordForm.hide();
 		$confirmationForm.hide();
@@ -59,9 +64,17 @@ $(async function(){
 		$resetPasswordForm.hide();
 		$confirmationForm.hide();
 	});
+	$googleBtn.click(function(){
+		chrome.tabs.create({url:'chrome-extension://' + chrome.runtime.id + '/gauth.html'});
+	});
+	$loginPasswordBtn.click(function(){
+		$signinMethods.hide();
+		$signinAccount.show();
+		console.log("4444");
+	});
 
 	$signinForm.submit(function(){
-		workflow.login(this.email.value.trim(), this.password.value.trim(), function(response){
+		workflow.login({email: this.email.value.trim(), password: this.password.value.trim()}, function(response){
 			if (response.errors) {
 				showErrors(response.errors);
 			}else {
@@ -70,7 +83,7 @@ $(async function(){
 						document.location.reload();
 					})
 				}else {
-					alert('Something is wrong. Please try again later');
+					showAlert('Something is wrong. Please try again later');
 				}
 			}
 		});
@@ -103,7 +116,7 @@ $(async function(){
 				$confirmationForm.hide();
 				$signupForm.hide();
 				$signinForm.show();
-				alert('Account is created. You can login now');
+				showAlert('Account is created. You can login now');
 			}
 		});
 		return false;
@@ -111,6 +124,7 @@ $(async function(){
 
 	$helloForm.find('a.logout').click(function(){
 		removeUserSessionId(function(){
+			refreshWindow();
 			document.location.reload();
 		});
 	});
@@ -135,7 +149,7 @@ $(async function(){
 				$forgotPasswordForm.hide();
 				showResetPassword(emailAddress);
 			}else {
-				alert('Something is wrong. Please try again later');
+				showAlert('Something is wrong. Please try again later');
 			}
 		});
 		return false;
@@ -143,7 +157,7 @@ $(async function(){
 
 	$resetPasswordForm.submit(function(){
 		if (this.password.value != this.confirm_password.value) {
-			alert('Passwords do not match');
+			showAlert('Passwords do not match');
 		}else {
 			workflow.updatePassword(this.code.value.trim(), this.email.value.trim(), this.password.value.trim(), function (response) {
 				if (response.errors) {
@@ -153,16 +167,16 @@ $(async function(){
 					$resetPasswordForm.hide();
 					$signupForm.hide();
 					$signinForm.show();
-					alert('Password has changed. You can login now using new password');
+					showAlert('Password has changed. You can login now using new password');
 				} else {
-					alert('Something is wrong. Please try again later');
+					showAlert('Something is wrong. Please try again later');
 				}
 			});
 		}
 		return false;
 	});
 
-	$('.change-plan-link').click(gotoPlans);
+	$('.btn-upgrade').click(gotoPlans);
 
 	$('.sign-up-footer a').click(function(){
 		if (this.href) {

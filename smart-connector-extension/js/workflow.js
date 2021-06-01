@@ -351,7 +351,7 @@ function Workflow() {
             if (pagesCount == 0) {
                 var totalResultFound = connections.data.metadata.totalResultCount;
                 if (totalResultFound > 1000) {
-                    alert('Total results number more than 1000. Will be collected only first 1000 results.');
+                    showAlert('Total results number more than 1000. Will be collected only first 1000 results.');
                     totalResultFound = 1000;
                 }
                 pagesCount = Math.ceil(totalResultFound / totalOnPage);
@@ -418,7 +418,7 @@ function Workflow() {
             if (pagesCount == 0) {
                 var totalResultFound = connections.data.paging.total;
                 if (totalResultFound > 1000) {
-                    alert('Total results number more than 1000. Will be collected only first 1000 results.');
+                    showAlert('Total results number more than 1000. Will be collected only first 1000 results.');
                     totalResultFound = 1000;
                 }
                 pagesCount = Math.ceil(totalResultFound / totalOnPage);
@@ -634,8 +634,8 @@ function Workflow() {
         return await doRequest('profile/delete/' + campaignId + '/' + profileId);
     }
 
-    this.login = async function(email, password, callback) {
-        var response = await doRequest('user/login' , 'post', {email: email, password: password});
+    this.login = async function(data, callback) {
+        var response = await doRequest('user/login' , 'post', data);
         callback(response);
     }
 

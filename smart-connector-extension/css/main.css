@@ -1094,8 +1094,21 @@ body {
 }
 
 .main-sign-up .main-sing-up__title {
-  padding-left: 30px;
   font-size: 24px;
+  text-align:center;
+}
+
+#signinform .main-sign-up__form {
+  display: none;
+}
+
+.main-sign-up .main-sign-up__form {
+  padding: 20px 15px;
+}
+
+#signupform .signin-methods {
+  margin: 30px;
+  text-align:center;
 }
 
 .main-sign-up .main-sign-up__form {
@@ -1115,7 +1128,30 @@ body {
   padding-bottom: 20px;
 }
 
-.main-sign-up .main-sign-up__form .bx--form-item.button .bx--btn {
+.main-sign-up .signin-methods {
+  text-align:center;
+}
+
+.main-sign-up .signin-methods .bx--form-item.button {
+  margin-bottom:20px;
+  display:inline;
+}
+
+.main-sign-up .signin-methods .bx--form-item.button .bx--btn {
+  width:100%;
+  text-align:center;
+  display:inline;
+  margin-top:20px;
+  padding: 0px;
+}
+
+.main-sign-up .signin-methods .bx--form-item.button .bx--btn.login-password {
+  background: none;
+  color: #1bb55c;
+  border: 2px solid;
+}
+
+.main-sign-up .bx--form-item.button .bx--btn {
   color: #fff;
   text-transform: uppercase;
   font-size: 18px;
@@ -1253,11 +1289,13 @@ main {
   overflow-x: hidden;
 }
 main .main-campaign__title {
-  margin: 20px 0 20px 32px;
+  margin: 20px 0 20px 0px;
 }
 main .main-campaign__title p {
   font-size: 15px;
   font-weight: 600;
+  text-align: center;
+  line-height: 2;
 }
 main .main-campaign__list .main-campaign__item:hover {
   background-color: #eeeded;

@@ -75,6 +75,14 @@ function getCookie(cookieName) {
     });
 }
 
+function refreshWindow() {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+        if (tabs.length && tabs[0].url) {
+            chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
+        }
+    });
+}
+
 function getCurrentTab() {
     return new Promise(function(resolve, reject){
         chrome.tabs.getCurrent(function(tab){
@@ -218,13 +226,13 @@ function basename(path) {
 
 function showMessage(message = []) {
     setTimeout(function(){
-        alert(message);
+        showAlert(message);
     }, 50);
 }
 
 function showErrors(errors = []) {
     setTimeout(function(){
-        alert(errors.join("\n"));
+        showAlert(errors.join("\n"));
     }, 50);
 }
 
@@ -232,4 +240,15 @@ function fixedEncodeURIComponent (str) {
     return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
         return '%' + c.charCodeAt(0).toString(16);
     });
+}
+
+function showAlert(text, offsetY = 0) {
+    var topMargin = offsetY?offsetY:($('body').height() / 2);
+    new Attention.Alert({
+        title: 'SmartConnector.org says',
+        content: text
+    });
+    $('.attention-component').css('top', topMargin  + 'px');
+    var $content = $('.attention-component .inner-container .content');
+    $content.html($content.html().replace('&lt;br/&gt;', '<br/>'));
 }
