@@ -1,13 +1,13 @@
 {
   "name": "LinkedIn Smart Connector",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Auto connections inviter and followup messenger for LinkedIn",
   "homepage_url": "https://smartconnector.org",
   "permissions": ["storage", "webRequest", "https://www.linkedin.com/", "https://app.smartconnector.org/"],
   "content_security_policy": "script-src 'self' https://app.smartconnector.org; object-src 'self'",
   "browser_action": {
       "default_title": "LinkedIn SmartConnector",
-      "default_popup": "popup.html"
+      "default_popup": "account.html"
    },
    "icons": {
     "120": "images/logo_120.png"
@@ -20,7 +20,7 @@
         "js": [
           "js/jquery.min.js",
           "js/jquery-ui.js",
-          "js/linkedin.js"
+          "js/integration.js"
         ]
     }
    ],
@@ -30,7 +30,9 @@
   },
   "web_accessible_resources": [
     "icons/*.*",
-    "index.html"
+    "index.html",
+    "account.html",
+    "images/logo-mini.png"
   ],
   "manifest_version": 2
 }

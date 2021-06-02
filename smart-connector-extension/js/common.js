@@ -44,7 +44,6 @@ async function getFromStoreExpiry(key, seconds) {
     if (!value) {
         return null;
     }else if (!value.expiry || value.expiry < Date.now()) {
-        deleteFromStore(key);
         return null;
     }else {
         return value.value;

@@ -1060,6 +1060,7 @@ body {
   max-width: 500px;
   /* height: 630px; */
   color: #333333;
+  background-color: #ffffda;
 }
 
 .header-sign-up {
@@ -1289,7 +1290,7 @@ main {
   overflow-x: hidden;
 }
 main .main-campaign__title {
-  margin: 20px 0 20px 0px;
+  margin: 5px 0 5px 0px;
 }
 main .main-campaign__title p {
   font-size: 15px;
@@ -1482,11 +1483,13 @@ input[type="file"] {
 
 main .main-text-area .bx--dropdown {
   width: 65%;
+  background-color: #fff;
 }
 
 main .main-text-area textarea {
   height: 150px;
   resize: none;
+  background-color: #fff;
 }
 
 main .main-text-area .bx--form-item .bx--text-area__wrapper {
@@ -1579,6 +1582,7 @@ main
   .bx--number__input-wrapper
   input[type="number"] {
   min-width: 97px;
+  background-color: #fff;
 }
 main
   .main-send__after
@@ -1722,6 +1726,10 @@ main
   outline-color: #1bb55c;
 }
 
+.bx--dropdown-list {
+  background-color: #fff;
+}
+
 main .main-finish-block .or {
   font-size: 18px;
   margin: 30px 0;
@@ -1735,6 +1743,7 @@ main .main-finish-block .upload-people-csv {
   font-size: 16px;
   text-decoration: none;
   color: #333333;
+  background-color: #fff;
 }
 
 main .main-finish-block .upload-people-csv span {
@@ -1844,7 +1853,7 @@ main .users .user-body__list {
 main .users .user-body__list .user-body__item {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 main .users .user-body__list .user-body__item .user-avatar {
   margin-right: 17px;
@@ -1925,7 +1934,7 @@ main .tabs a.bx--tabs__nav-link:focus,
 main .tabs:active,
 main .tabs:hover {
   outline: none;
-  background-color: #fff;
+  /*background-color: #fff;*/
 }
 main .tabs .bx--graph-header {
   font-weight: 300;
@@ -1991,7 +2000,7 @@ main
 }
 main .tabs .tab-1-default div .time-stats__limits,
 main .tabs .tab-3-default div .time-stats__limits {
-  background-color: #f5f5f5;
+  background-color: transparent;
 }
 main .tabs .tab-1-default div .time-stats__limits h3,
 main .tabs .tab-3-default div .time-stats__limits h3 {
@@ -2011,6 +2020,7 @@ main
   align-items: center;
   padding: 0 30px;
   padding-bottom: 21px;
+  padding-top: 15px;
 }
 main
   .tabs
@@ -2057,6 +2067,9 @@ main
   min-width: 50px;
   padding-right: 16px;
   text-align: center;
+  background: #fff;
+  margin-left: 10px;
+  height: 1.8rem;
 }
 
 /* .bx--number__input-wrapper .number-input__buttons {
@@ -2413,7 +2426,7 @@ main .tabs .tab-2-default div .message-container .message {
   height: auto;
   padding: 17px 25px 30px 25px;
   margin-bottom: 25px;
-  background-color: #f5f5f5;
+  background-color: #fff;
 }
 
 main .tabs .tab-2-default div .message-container .next-message {
@@ -2540,9 +2553,12 @@ footer .btn {
   cursor: pointer;
 }
 footer .btn.btn-prev {
-  color: #333333;
-  background-color: #e0e0e0;
+  color: #fff;
   text-decoration: none;
+  background-color: #4c4c4c;
+  text-decoration: none;
+  font-size: 16px;
+  text-transform: uppercase;
 }
 footer .btn.btn-prev i {
   color: #bdbdbd;
@@ -2557,6 +2573,8 @@ footer .btn.btn-next {
   color: #fff;
   background-color: #1bb55c;
   text-decoration: none;
+  font-size: 16px;
+  text-transform: uppercase;
 }
 footer .btn.btn-next:hover {
   background-color: #147b40;
@@ -2650,6 +2668,10 @@ footer .btn.create-campaign:hover {
   .bx--form-item
   .bx--text-input__field-wrapper {
   width: 200px;
+}
+
+.bx--text-input {
+ background-color: #fff;
 }
 
 .modal-user.bx--modal
@@ -2861,3 +2883,12 @@ a#people-export {
   font-size: 16px;
   text-transform: uppercase;
 }
+
+a#logout {
+  position:fixed;
+  top:35px;
+  right:20px;
+  color:#fff;
+}
+
+.bx--text-area

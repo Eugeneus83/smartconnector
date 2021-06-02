@@ -29,6 +29,7 @@ $(async function(){
     $h2Title = $('h2.title');
     $navBack = $('a#navBack');
     $xDaysAfter = $('div.main-send__after');
+    var $logoutLink = $('#logout');
     $campaignDetail.hide();
     $progressBar.hide();
     $campaignNameStep.hide();
@@ -45,6 +46,13 @@ $(async function(){
     $navBack.hide();
     $xDaysAfter.hide();
     $applyLinkedinSearch.hide();
+
+    $logoutLink.click(function(){
+        removeUserSessionId(function(){
+            refreshWindow();
+            document.location.reload();
+        });
+    });
 
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if (request.current_search_status) {
@@ -356,8 +364,10 @@ async function buildCampaignList() {
     $campaignList.attr('campaigns-limit', json['limit']);
     $campaignList.find('li.main-campaign__item').remove();
     updateProgress(json['progress']);
+    var $campaignTitle = $('div.main-campaign__title p');
     if (json['campaign_list'].length) {
-        $('div.main-campaign__title p').hide();
+        $campaignTitle.text('Hello ' + json.user.username);
+        $('div.main-campaign__title p').text('Hello ' + json.user.username + '. ');
         for (var i = 0; i < json['campaign_list'].length; i++) {
             addCampaign(json['campaign_list'][i]);
         }
@@ -365,7 +375,7 @@ async function buildCampaignList() {
         var $createNewCampaignLink = $('<a/>').attr('href', '#').text('create your first campaign').click(function(){
             $createCampaignLink.click();
         });
-        $('div.main-campaign__title p').text('Hello ' + json.user.username + '. You have no campaigns yet').append('<br/>Please ').append($createNewCampaignLink);
+        $campaignTitle.text('Hello ' + json.user.username + '. You have no campaigns yet.').append('<br/>Please ').append($createNewCampaignLink).append('.');
     }
 }
 
