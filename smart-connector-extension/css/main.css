@@ -2517,6 +2517,7 @@ main .tabs .tab-3-default .search .bx--search-input:focus {
   padding: 10px;
   width: 100%;
   padding: 15px;
+  text-align: center;
 }
 #day-progress div {
   width:50%;

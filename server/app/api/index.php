@@ -14,6 +14,7 @@ try {
     $ids = isset($_GET['ids'])?array_map('trim', explode('/', $_GET['ids'])):false;
     $id = $ids[0];
     $id2 = isset($ids[1])?$ids[1]:null;
+    $id3 = isset($ids[2])?$ids[2]:null;
 
     if ($model == 'user') {
         if ($action == 'login') {
@@ -59,7 +60,7 @@ try {
             }
         }elseif ($model == 'invitation') {
             if ($action == 'sent' && $id) {
-                $result = $api->markInvitationAsSent($id, $id2);
+                $result = $api->markInvitationAsSent($id, $id2, $id3);
             }elseif ($action == 'error' && $id) {
                 $result = $api->setInvitationError($id, $id2);
             }elseif ($action == 'latest') {
@@ -457,7 +458,7 @@ class Api {
             if ($includeInvitations) {
                 $sql = "SELECT cp.campaign_id, MAX(`invitation_sent_at`) AS `latest_invitation_sent` FROM `user_profile` AS `up`
                 JOIN `campaign_profile` AS `cp` ON cp.profile_id = up.profile_id
-                WHERE `user_id` = $this->_userId AND `campaign_id` IN (?a) GROUP BY cp.campaign_id ORDER BY `latest_invitation_sent` ASC";
+                WHERE `user_id` = $this->_userId AND cp.campaign_id IN (?a) GROUP BY cp.campaign_id ORDER BY `latest_invitation_sent` ASC";
                 $campaignIdsSorted = array_column($this->_db->getAll($sql, $userCampaignIds), 'campaign_id');
 
                 if (count($campaignIdsSorted)) {
@@ -501,12 +502,20 @@ class Api {
                     $followUps[] = $row;
                 }
 
-                $sql = "SELECT f.campaign_id, MAX(fp.sent_at) AS `latest_message_sent` FROM `followup` AS `f`
+                $sql = "SELECT f.campaign_id, fp.profile_id, MAX(fp.sent_at) AS `latest_message_sent`, MIN(fp.sent_at) AS `earliest_message_sent` FROM `followup` AS `f`
                 LEFT JOIN `followup_profile` AS `fp` ON fp.followup_id = f.id
-                WHERE f.campaign_id IN (?a) GROUP BY f.campaign_id ORDER BY `latest_message_sent` ASC";
-                $campaignIdsSorted = array_column($this->_db->getAll($sql, $userCampaignIds), 'campaign_id');
+                WHERE f.campaign_id IN (?a) GROUP BY f.campaign_id, fp.profile_id ORDER BY `latest_message_sent` ASC";
+                $queryResult = $this->_db->getAll($sql, $userCampaignIds);
+                $campaignIdsSorted = array_unique(array_column($queryResult, 'campaign_id'));
+                $followupStartByCampaign = [];
+                foreach ($queryResult as $row) {
+                    if ($row['profile_id']) {
+                        $followupStartByCampaign[$row['campaign_id']][$row['profile_id']] = $row['earliest_message_sent'];
+                    }
+                }
+
                 if (count($campaignIdsSorted)) {
-                    $sql = "SELECT p.id, p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, cp.campaign_id, up.accepted_at, up.last_respond_at FROM `campaign_profile` AS `cp`
+                    $sql = "SELECT p.id, p.entity_id, up.invitation_campaign_id, up.public_id, up.thread_id, up.first_name, up.last_name, up.company, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, cp.campaign_id, up.invitation_sent_at, up.accepted_at, up.last_respond_at FROM `campaign_profile` AS `cp`
                     JOIN `profile` AS `p` ON p.id = cp.profile_id 
                     JOIN `user_profile` AS `up` ON up.profile_id = p.id AND up.user_id = $this->_userId
                     WHERE cp.campaign_id IN (?a) AND (up.accepted_at IS NOT NULL AND up.accepted_at > 0) AND (up.sent_in_work_at IS NULL OR (" . time() . " - up.sent_in_work_at) > " . SAME_PERSON_MESSAGES_DELAY . ") ORDER BY FIELD (cp.campaign_id, " . (implode(',', $campaignIdsSorted)) . "), p.id ASC";
@@ -521,11 +530,11 @@ class Api {
                                 continue;
                             }
                             $keepSendingMessages = $userCampaignList[$profileRow['campaign_id']]['keep_sending_messages'];
-                            if ($profileRow['last_respond_at'] && !$keepSendingMessages) {
+                            if (!$keepSendingMessages && $profileRow['last_respond_at'] && $profileRow['last_respond_at'] > $profileRow['invitation_sent_at'] && $profileRow['campaign_id'] == $profileRow['invitation_campaign_id']) {
                                 break;
                             }
-                            if ($_SERVER['REMOTE_ADDR'] == '93.78.3.149') {
-                                //var_dump(array_keys($existingProfileFollowUps[121]));
+                            if (!$keepSendingMessages && $profileRow['last_respond_at'] && isset($followupStartByCampaign[$profileRow['campaign_id']][$profileRow['id']]) && $profileRow['last_respond_at'] > $followupStartByCampaign[$profileRow['campaign_id']][$profileRow['id']]) {
+                                break;
                             }
                             if (isset($existingProfileFollowUps[$followupRow['id']][$profileRow['id']])) {
                                 $existingProfileFollowUpRow = $existingProfileFollowUps[$followupRow['id']][$profileRow['id']];
@@ -541,8 +550,9 @@ class Api {
                                     $sendTime = ($previousFollowUpSentAt ? $previousFollowUpSentAt : $acceptedAt) + $followupRow['days_after_previous'] * 24 * 3600;
                                 }
                                 if ($sendTime <= time()) {
-                                    $followupList[$followupRow['campaign_id']][] = ['profile_id' => $profileRow['id'], 'public_id' => $profileRow['public_id'], 'followup_id' => $followupRow['id'], 'message' => $followupRow['message'], 'entity_id' => $profileRow['entity_id'], 'first_name' => $profileRow['first_name'],
-                                        'last_name' => $profileRow['last_name'], 'full_name' => $profileRow['first_name'] . ' ' . $profileRow['last_name'], 'company' => $profileRow['company'], 'custom_snippet_1' => $profileRow['custom_snippet_1'], 'custom_snippet_2' => $profileRow['custom_snippet_2'], 'custom_snippet_3' => $profileRow['custom_snippet_3'], 'attachments' => $followupRow['attachments'], 'send_at' => $sendTime, 'keep_sending' => (int)$keepSendingMessages];
+                                    $followupList[$followupRow['campaign_id']][] = ['profile_id' => $profileRow['id'], 'public_id' => $profileRow['public_id'], 'followup_id' => $followupRow['id'], 'message' => $followupRow['message'], 'entity_id' => $profileRow['entity_id'], 'thread_id' => $profileRow['thread_id'], 'first_name' => $profileRow['first_name'],
+                                        'last_name' => $profileRow['last_name'], 'full_name' => $profileRow['first_name'] . ' ' . $profileRow['last_name'], 'company' => $profileRow['company'], 'custom_snippet_1' => $profileRow['custom_snippet_1'], 'custom_snippet_2' => $profileRow['custom_snippet_2'], 'custom_snippet_3' => $profileRow['custom_snippet_3'], 'attachments' => $followupRow['attachments'], 'send_at' => $sendTime, 'keep_sending' => (int)$keepSendingMessages, 'last_respond_at' => $profileRow['last_respond_at']];
+
                                 }
                                 break;
                             }
@@ -602,7 +612,7 @@ class Api {
         return ['success' => 1];
     }
 
-    public function markInvitationAsSent($profileId, $invitationId = null) {
+    public function markInvitationAsSent($profileId, $invitationId = null, $campaignId = null) {
         $invitationSentAt = time();
         if (!$invitationId) {
             // if user has been already connected, set invitation time as week before to not affect the limits
@@ -613,6 +623,9 @@ class Api {
         if ($invitationId) {
             $insert['invitation_id'] = $invitationId;
             $update['invitation_id'] = $invitationId;
+        }
+        if ($campaignId) {
+            $update['invitation_campaign_id'] = $campaignId;
         }
         $sql = "INSERT INTO `user_profile` SET ?u ON DUPLICATE KEY UPDATE ?u";
         $this->_db->query($sql, $insert, $update);

@@ -70,7 +70,7 @@ function Workflow() {
                         }
                     }
                     if (invited || invitationResult.invitation_id) {
-                        await markAsInvited(task.profile_id, invitationResult?invitationResult.invitation_id:0);
+                        await markAsInvited(task.profile_id, task.campaign_id, invitationResult?invitationResult.invitation_id:0);
                     }
                 }
             }
@@ -84,13 +84,16 @@ function Workflow() {
                     continue;
                 }
                 console.log('Task', task);
-                if (!task.keep_sending && conversationList[task.entity_id]){
-                    var lastestMessageAt = await getLatestMessageAt(conversationList[task.entity_id], task.entity_id);
-                    if (lastestMessageAt) {
+                if (conversationList[task.entity_id] && conversationList[task.entity_id] != task.thread_id) {
+                    task.thread_id = conversationList[task.entity_id];
+                }
+                if (!task.keep_sending && task.thread_id){
+                    var latestMessageAt = await getLatestMessageAt(task.thread_id, task.entity_id);
+                    if (latestMessageAt && Math.abs(latestMessageAt - task.last_respond_at) > 1) {
                         var updateLog = {};
-                        updateLog[task.entity_id] = {created_at: lastestMessageAt, thread_id: conversationList[task.entity_id]};
+                        updateLog[task.entity_id] = {created_at: latestMessageAt, thread_id: task.thread_id};
                         doRequest('message/sync', 'post', updateLog);
-                        console.log('Already responded')
+                        console.log('Already replied')
                         return;
                     }
                 }
@@ -923,7 +926,7 @@ function Workflow() {
 
     var getLatestMessageAt = async function(conversationId, entityId) {
         var sentAt = 0;
-        var json = await getData(linkedinDomain + '/voyager/api/messaging/conversations/' + conversationId + '/events?q=syncToken', await getHttpHeaders());
+        var json = await getData(linkedinDomain + '/voyager/api/messaging/conversations/' + conversationId + '/events?count=20&q=syncToken', await getHttpHeaders());
         for (var inc of json.included) {
            if (inc.$type == 'com.linkedin.voyager.messaging.Event') {
                if (inc['*from'].indexOf(entityId) > -1) {
@@ -934,7 +937,7 @@ function Workflow() {
                }
            }
         }
-        return sentAt;
+        return Math.round(sentAt);
     }
 
     var updateFollowupStatus = async function(followupId, profileId, status, callback) {
@@ -946,8 +949,8 @@ function Workflow() {
         doRequest('invitation/error/' + profileId + '/' + status);
     }
 
-    var markAsInvited = async function(profileId, invitationId) {
-        doRequest('invitation/sent/' + profileId + '/' + invitationId);
+    var markAsInvited = async function(profileId, campaignId, invitationId) {
+        doRequest('invitation/sent/' + profileId + '/' + invitationId + '/' + campaignId);
         setProfileInvited(profileId);
     }
 
