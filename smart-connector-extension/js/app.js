@@ -372,10 +372,11 @@ async function buildCampaignList() {
             addCampaign(json['campaign_list'][i]);
         }
     }else {
-        var $createNewCampaignLink = $('<a/>').attr('href', '#').text('create your first campaign').click(function(){
+        var $createNewCampaignLink = $('<a/>').attr('href', '#').attr('style', 'color: #1bb55c').text('create your first campaign').click(function(){
             $createCampaignLink.click();
         });
-        $campaignTitle.text('Hello ' + json.user.username + '. You have no campaigns yet.').append('<br/>Please ').append($createNewCampaignLink).append('.');
+        var $manualLink = $('<a/>').attr('target', '_blank').attr('href', 'https://smartconnector.org/video/sc_create_campaign.mp4').text('Video manual');
+        $campaignTitle.text('Hello ' + json.user.username + '. You have no campaigns yet.').append('<br/>Please ').append($createNewCampaignLink).append('.<br/>').append($manualLink);
     }
 }
 
