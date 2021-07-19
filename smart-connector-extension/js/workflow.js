@@ -368,6 +368,7 @@ function Workflow() {
             }
             var contactList = {};
             var contact;
+            console.log("Includ", connections.included);
             for (var key in connections.included) {
                 contact = connections.included[key];
                 if (contact.publicIdentifier && contact.entityUrn && contact.firstName) {
@@ -685,7 +686,7 @@ function Workflow() {
 
     var updateTaskProfile = async function(task, msgText) {
         var oldTask = Object.assign({}, task);
-        if (!task.first_name && !task.last_name) {
+        if (!task.first_name || !task.last_name || !task.location) {
             var profileData = await parseProfileData(task.entity_id);
             if (profileData) {
                 task.entity_id = profileData.entity_id;
@@ -694,6 +695,9 @@ function Workflow() {
                 }
                 if (!task.last_name) {
                     task.last_name = profileData.last_name;
+                }
+                if (!task.location) {
+                    task.location = profileData.location;
                 }
             }
         }
@@ -710,7 +714,8 @@ function Workflow() {
                 'entity_id': task.entity_id,
                 'first_name': task.first_name,
                 'last_name': task.last_name,
-                'company': task.company
+                'company': task.company,
+                'location': task.location
             };
             this_.editProfile(task.profile_id, profile);
             if ($campaignDetail.is(":visible")) {
@@ -729,10 +734,18 @@ function Workflow() {
         }
         var response = await getData(url, headers);
         if (response && response.data) {
+            var location = [];
+            if (response.data.geoLocationName) {
+                location.push(response.data.geoLocationName);
+            }
+            if (response.data.geoCountryName) {
+                location.push(response.data.geoCountryName);
+            }
             return {
                 'entity_id': response.data['*miniProfile'].replace(/^urn:li:fs_miniProfile:/, '').trim(),
                 'first_name': response.data.firstName,
-                'last_name': response.data.lastName
+                'last_name': response.data.lastName,
+                'location': location.length?location.join(', ', location):null
             };
         }
     }
@@ -872,6 +885,14 @@ function Workflow() {
                     profile.public_id = included.publicIdentifier;
                 }
             }
+            var location = [];
+            if (response.data.geoLocationName) {
+                location.push(response.data.geoLocationName);
+            }
+            if (response.data.geoCountryName) {
+                location.push(response.data.geoCountryName);
+            }
+            profile.location = location.length?location.join(', ', location):null;
         }
         return profile;
     }

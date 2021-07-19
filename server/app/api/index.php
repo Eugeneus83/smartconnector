@@ -328,7 +328,7 @@ class Api {
                 $campaign['messages']['followup'][] = $row;
             }
             $campaign['profiles'] = [];
-            $sql = "SELECT p.id, p.entity_id, up.public_id, up.thread_id, up.invitation_id, up.first_name, up.last_name, up.company, up.job_title, up.picture, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, up.invitation_sent_at, up.accepted_at FROM `profile` AS `p`
+            $sql = "SELECT p.id, p.entity_id, up.public_id, up.thread_id, up.invitation_id, up.first_name, up.last_name, up.company, up.job_title, up.location, up.picture, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, up.invitation_sent_at, up.accepted_at FROM `profile` AS `p`
                  JOIN `user_profile` AS `up` ON up.profile_id = p.id AND up.user_id = $this->_userId
                  JOIN `campaign_profile` AS `cp` ON cp.profile_id = p.id
                  WHERE cp.campaign_id = ?i GROUP BY p.id ORDER BY p.id ASC";
@@ -358,7 +358,7 @@ class Api {
         $sql = "SELECT COUNT(*) FROM `followup` WHERE `campaign_id` = ?i";
         $followupsTotalCount = $this->_db->getOne($sql, $campaignId);
         
-        $sql = "SELECT p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.job_title, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, up.invitation_sent_at, up.accepted_at, up.last_respond_at, up.invitation_campaign_id, COUNT(fp.sent_at) AS `message_sent_count`, MIN(fp.sent_at) AS `sent_at_earliest` FROM `user_profile` AS `up`
+        $sql = "SELECT p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.job_title, up.location, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, up.invitation_sent_at, up.accepted_at, up.last_respond_at, up.invitation_campaign_id, COUNT(fp.sent_at) AS `message_sent_count`, MIN(fp.sent_at) AS `sent_at_earliest` FROM `user_profile` AS `up`
         JOIN `campaign_profile` AS `cp` ON cp.profile_id = up.profile_id
         JOIN `profile` AS `p` ON p.id = cp.profile_id 
         LEFT JOIN `followup` AS `f` ON f.campaign_id = ". mysqli_real_escape_string($this->_db->conn, $campaignId). "
@@ -368,7 +368,7 @@ class Api {
 
         $fp = fopen($fPath, 'w');
         fputs($fp, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
-        $headers = ['Link', 'First Name', 'Last Name', 'Company', 'Job Title', 'Custom Snippet 1', 'Custom Snippet 2', 'Custom Snippet 3', 'Invited', 'Accepted', 'Replied', 'Followup sent', 'Finished'];
+        $headers = ['Link', 'First Name', 'Last Name', 'Company', 'Job Title', 'Location', 'Custom Snippet 1', 'Custom Snippet 2', 'Custom Snippet 3', 'Invited', 'Accepted', 'Replied', 'Followup sent', 'Finished'];
         fputcsv($fp, $headers, "\t", '"');
 
         $totalInvitationSent = 0;
@@ -379,7 +379,7 @@ class Api {
         while ($row = mysqli_fetch_assoc($res)) {
             $csvRow = [];
             $csvRow[] = 'https://www.linkedin.com/in/'. ($row['public_id']?$row['public_id']:$row['entity_id']);
-            foreach (['first_name', 'last_name', 'company', 'job_title', 'custom_snippet_1', 'custom_snippet_2', 'custom_snippet_3'] as $fieldName) {
+            foreach (['first_name', 'last_name', 'company', 'job_title', 'location', 'custom_snippet_1', 'custom_snippet_2', 'custom_snippet_3'] as $fieldName) {
                 $csvRow[] = $row[$fieldName];
             }
             if ($row['invitation_sent_at']) {
@@ -734,7 +734,7 @@ class Api {
 
     public function editProfile($profileId, array $data) {
         $upd = [];
-        foreach (['entity_id', 'first_name', 'last_name', 'company', 'custom_snippet_1', 'custom_snippet_2', 'custom_snippet_3'] as $fieldName) {
+        foreach (['public_id', 'first_name', 'last_name', 'company', 'location', 'custom_snippet_1', 'custom_snippet_2', 'custom_snippet_3'] as $fieldName) {
             if (isset($data[$fieldName])) {
                 $upd[$fieldName] = $data[$fieldName]?$data[$fieldName]:NULL;
             }
@@ -1128,7 +1128,7 @@ class Api {
             $profileId = $this->_db->insertId();
         }
         $insert = ['profile_id' => $profileId, 'user_id' => $this->_userId];
-        foreach (['public_id', 'first_name', 'last_name', 'company', 'job_title', 'picture', 'custom_snippet_1', 'custom_snippet_2', 'custom_snippet_3'] as $fieldName) {
+        foreach (['public_id', 'first_name', 'last_name', 'company', 'job_title', 'location', 'picture', 'custom_snippet_1', 'custom_snippet_2', 'custom_snippet_3'] as $fieldName) {
             if (isset($profile[$fieldName]) && trim($profile[$fieldName])) {
                 $insert[$fieldName] = trim($profile[$fieldName]);
             }
@@ -1142,6 +1142,9 @@ class Api {
         }
         if (isset($insert['last_name']) && $insert['last_name']) {
             $update['last_name'] = $insert['last_name'];
+        }
+        if (isset($insert['location']) && $insert['location']) {
+            $update['location'] = $insert['location'];
         }
         if (isset($insert['picture']) && $insert['picture']) {
             $update['picture'] = $insert['picture'];

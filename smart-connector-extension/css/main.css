@@ -2650,8 +2650,7 @@ footer .btn.create-campaign:hover {
 
   justify-content: space-between;
 
-  margin-bottom: 30px;
-  margin-top: 20px;
+  margin-bottom: 15px;
 }
 
 .modal-user.bx--modal
@@ -2685,10 +2684,10 @@ footer .btn.create-campaign:hover {
 }
 
 .modal-user.bx--modal .bx--modal-container .bx--modal-content .company-block {
-  margin-bottom: 30px;
+  margin-bottom: 15px;
 }
 .modal-user.bx--modal .bx--modal-container .bx--modal-content .job-title-block {
-  margin-bottom: 30px;
+  margin-bottom: 15px;
 }
 
 .modal-user.bx--modal
