@@ -368,7 +368,6 @@ function Workflow() {
             }
             var contactList = {};
             var contact;
-            console.log("Includ", connections.included);
             for (var key in connections.included) {
                 contact = connections.included[key];
                 if (contact.publicIdentifier && contact.entityUrn && contact.firstName) {

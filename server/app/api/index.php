@@ -463,7 +463,7 @@ class Api {
                 $campaignIdsSorted = array_column($this->_db->getAll($sql, $userCampaignIds), 'campaign_id');
 
                 if (count($campaignIdsSorted)) {
-                    $sql = "SELECT c.id AS `campaign_id`, c.connection_message, p.id AS `profile_id`, p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3 FROM `campaign` AS `c`
+                    $sql = "SELECT c.id AS `campaign_id`, c.connection_message, p.id AS `profile_id`, p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.location, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3 FROM `campaign` AS `c`
                     JOIN `campaign_profile` AS `cp` ON cp.campaign_id = c.id
                     JOIN `profile` AS `p` ON p.id = cp.profile_id
                     JOIN `user_profile` AS `up` ON up.profile_id = p.id AND up.user_id = $this->_userId
@@ -516,7 +516,7 @@ class Api {
                 }
 
                 if (count($campaignIdsSorted)) {
-                    $sql = "SELECT p.id, p.entity_id, up.invitation_campaign_id, up.public_id, up.thread_id, up.first_name, up.last_name, up.company, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, cp.campaign_id, up.invitation_sent_at, up.accepted_at, up.last_respond_at FROM `campaign_profile` AS `cp`
+                    $sql = "SELECT p.id, p.entity_id, up.invitation_campaign_id, up.public_id, up.thread_id, up.first_name, up.last_name, up.company, up.location, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, cp.campaign_id, up.invitation_sent_at, up.accepted_at, up.last_respond_at FROM `campaign_profile` AS `cp`
                     JOIN `profile` AS `p` ON p.id = cp.profile_id 
                     JOIN `user_profile` AS `up` ON up.profile_id = p.id AND up.user_id = $this->_userId
                     WHERE cp.campaign_id IN (?a) AND (up.accepted_at IS NOT NULL AND up.accepted_at > 0) AND (up.sent_in_work_at IS NULL OR (" . time() . " - up.sent_in_work_at) > " . SAME_PERSON_MESSAGES_DELAY . ") ORDER BY FIELD (cp.campaign_id, " . (implode(',', $campaignIdsSorted)) . "), p.id ASC";
