@@ -357,11 +357,12 @@ class Api {
 
         $sql = "SELECT COUNT(*) FROM `followup` WHERE `campaign_id` = ?i";
         $followupsTotalCount = $this->_db->getOne($sql, $campaignId);
-
-        $sql = "SELECT p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.job_title, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, up.invitation_sent_at, up.accepted_at, up.last_respond_at, COUNT(fp.sent_at) AS `message_sent_count` FROM `user_profile` AS `up`
+        
+        $sql = "SELECT p.entity_id, up.public_id, up.first_name, up.last_name, up.company, up.job_title, up.custom_snippet_1, up.custom_snippet_2, up.custom_snippet_3, up.invitation_sent_at, up.accepted_at, up.last_respond_at, up.invitation_campaign_id, COUNT(fp.sent_at) AS `message_sent_count`, MIN(fp.sent_at) AS `sent_at_earliest` FROM `user_profile` AS `up`
         JOIN `campaign_profile` AS `cp` ON cp.profile_id = up.profile_id
         JOIN `profile` AS `p` ON p.id = cp.profile_id 
-        LEFT JOIN `followup_profile` AS `fp` ON fp.profile_id = cp.profile_id 
+        LEFT JOIN `followup` AS `f` ON f.campaign_id = ". mysqli_real_escape_string($this->_db->conn, $campaignId). "
+        LEFT JOIN `followup_profile` AS `fp` ON fp.profile_id = cp.profile_id AND fp.followup_id = f.id 
         WHERE cp.campaign_id = ". mysqli_real_escape_string($this->_db->conn, $campaignId). " AND up.user_id = $this->_userId
         GROUP BY cp.profile_id";
 
@@ -393,7 +394,7 @@ class Api {
             }else {
                 $csvRow[] = 'N';
             }
-            if ($row['last_respond_at']) {
+            if (($row['last_respond_at'] && $row['sent_at_earliest'] && $row['last_respond_at'] > $row['sent_at_earliest']) || ($row['last_respond_at'] && $row['invitation_sent_at'] && $row['last_respond_at'] > $row['invitation_sent_at'] && $row['invitation_campaign_id'] == $campaignId)) {
                 $csvRow[] = 'Y';
                 $totalReplied ++;
             }else {
