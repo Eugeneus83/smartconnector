@@ -11,6 +11,7 @@ Header add Access-Control-Max-Age "0"
 Header add Content-Security-Policy "default-src *; style-src 'self' 'unsafe-inline'; connect-src *; script-src * https: 'unsafe-inline'; object-src *;"
 Header add X-Content-Security-Policy: "default-src *; connect-src *; script-src *; object-src *;"
 Header add X-Webkit-CSP "default-src *; connect-src *; script-src 'unsafe-inline' 'unsafe-eval' *; object-src *;"
+Header set Access-Control-Allow-Headers "connector-session-id"
 
 AddCharset UTF-8 .txt
 AddCharset WINDOWS-1251 .txt

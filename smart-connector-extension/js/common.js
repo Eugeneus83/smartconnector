@@ -251,3 +251,26 @@ function showAlert(text, offsetY = 0) {
     var $content = $('.attention-component .inner-container .content');
     $content.html($content.html().replace('&lt;br/&gt;', '<br/>'));
 }
+
+function showConfirm(msg) {
+    return new Promise(function(resolve, reject) {
+        chrome.runtime.sendMessage({
+            action: 'confirm',
+            message: msg
+        }, function (response) {
+            resolve(response);
+        });
+    });
+}
+
+function showPrompt(title, defaultVal) {
+    return new Promise(function(resolve, reject) {
+        chrome.runtime.sendMessage({
+            action: 'prompt',
+            title: title,
+            default: defaultVal
+        }, function (response) {
+            resolve(response);
+        });
+    });
+}

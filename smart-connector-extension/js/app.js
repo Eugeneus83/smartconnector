@@ -123,8 +123,8 @@ $(async function(){
             showErrors(errors);
             return false;
         }
-        var peopleCount = readCampaignPeopleNumber(campaign['people'].length);
-        var peopleStartingFrom = readCampaignPeopleStartingFrom(1);
+        var peopleCount = await readCampaignPeopleNumber(campaign['people'].length);
+        var peopleStartingFrom = await readCampaignPeopleStartingFrom(1);
         campaign['people'] = campaign['people'].slice(peopleStartingFrom, peopleStartingFrom + peopleCount);
         if (campaign['people'].length == 0) {
             showAlert('People number must be greater than 0');
@@ -139,7 +139,7 @@ $(async function(){
                 for (var i = 0; i < result.entity_ids.length; i ++) {
                     existingPublicIds[result.entity_ids[i]] = 1;
                 }
-                if (confirm(result.errors[0])) {
+                if (await showConfirm(result.errors[0])) {
                     campaign['allow_duplicate'] = 1;
                     var result = await workflow.addCampaign(campaign);
                     if (result.errors) {
@@ -172,12 +172,12 @@ $(async function(){
     $addPeopleToCampaign.click(async function(){
         var people = collectCampaignPeople();
         if (people.length > 0) {
-            var peopleCount = readCampaignPeopleNumber(people.length);
+            var peopleCount = await readCampaignPeopleNumber(people.length);
             if (peopleCount === 0) {
                 showAlert('People number must be greater than 0');
                 return;
             }
-            var peopleStartingFrom = readCampaignPeopleStartingFrom(1);
+            var peopleStartingFrom = await readCampaignPeopleStartingFrom(1);
             people = people.slice(peopleStartingFrom, peopleStartingFrom + peopleCount);
             if (people.length > 0) {
                 var campaignId = $(this).attr('campaign_id');
@@ -641,10 +641,10 @@ function gotoCampaignList(){
     removeCampaignSession();
 }
 
-function gotoCampaignName() {
+async function gotoCampaignName() {
     var campaignsLimit = $campaignList.attr('campaigns-limit');
     if ($('ul.main-campaign__list li.main-campaign__item').length >= campaignsLimit) {
-        if (confirm('Maximum campaigns number for your plan is ' + campaignsLimit + '. Upgrade plan?')) {
+        if (await showConfirm('Maximum campaigns number for your plan is ' + campaignsLimit + '. Upgrade plan?')) {
             gotoPlans();
         }
         return;
@@ -774,21 +774,21 @@ async function gotoCollectPeople(searchUrl, people = null){
         if (searchUrl.indexOf(navigatorSearchUrl) === 0) {
             filter = await getFromStore('navigate_search_api_url');
             if (!filter) {
-                alert('Please user some search filters');
+                showAlert('Please user some search filters');
                 return;
             }else if (filter.indexOf('doFetchHits:true') === -1) {
-                alert('Please click "Search" button of search form first');
+                showAlert('Please click "Search" button of search form first');
                 return;
             }
             collectPeopleFunction = workflow.collectPeopleFromNavigator;
         }else {
             if (searchUrl.indexOf(linkedinSearchUrl) === -1) {
-                alert('Please click "Show Linkedin Search" first');
+                showAlert('Please click "Show Linkedin Search" first');
                 return false;
             }
             var filter = workflow.buildSearchFilter(searchUrl);
             if (!filter || (!filter['keywords'] && filter['filter'].length < 2)) {
-                alert('Please add some search filters');
+                showAlert('Please add some search filters');
                 showPeopleSearch(onPeopleSearch);
                 return false;
             }
@@ -926,7 +926,7 @@ function addProfileToList(profile, $profileListBlock = null, full = true) {
 
     async function removeProfile($p, confirmed = false) {
         if ($p.attr('profile_id') && $campaignDetail.attr('campaign_id')) {
-            if (confirmed || confirm('Delete from campaign permanently ?')) {
+            if (confirmed || await showConfirm('Delete from campaign permanently ?')) {
                 await workflow.deleteCampaignProfile($campaignDetail.attr('campaign_id'), $p.attr('profile_id'));
             }else {
                 return false;
@@ -1290,19 +1290,19 @@ function editPeopleCallback(campaignId, people = null) {
     $addCampaignPeople.show();
 }
 
-function readCampaignPeopleNumber(defaultNumber) {
-    return readCampaignNumber(defaultNumber, 'How many profiles to import?');
+async function readCampaignPeopleNumber(defaultNumber) {
+    return await readCampaignNumber(defaultNumber, 'How many profiles to import?');
 }
 
-function readCampaignPeopleStartingFrom(defaultNumber) {
-    var number = readCampaignNumber(defaultNumber, 'Starting from position') - 1;
+async function readCampaignPeopleStartingFrom(defaultNumber) {
+    var number = await readCampaignNumber(defaultNumber, 'Starting from position') - 1;
     if (number < 0) number = 0;
     return number;
 }
 
-function readCampaignNumber(defaultNumber, title) {
+async function readCampaignNumber(defaultNumber, title) {
     do {
-        var answer = prompt(title, defaultNumber);
+        var answer = await showPrompt(title, defaultNumber);
         if (answer === null) {
             return 0;
         }

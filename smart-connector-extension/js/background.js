@@ -83,6 +83,10 @@ chrome.runtime.onMessage.addListener(function (content, sender, response) {
                     response(true);
                 });
             });
+        }else if (content.action == 'confirm') {
+            response(confirm(content.message));
+        }else if (content.action == 'prompt') {
+            response(prompt(content.title, content.default));
         }
     }
 

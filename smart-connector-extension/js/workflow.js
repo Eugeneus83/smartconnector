@@ -260,7 +260,7 @@ function Workflow() {
     var getHttpHeaders = async function () {
         var csrfToken = await getCsrfToken();
         if (!csrfToken) {
-            alert('Check if you are logged in Linkedin');
+            showAlert('Check if you are logged in Linkedin');
             throw new Error('Check if you are logged');
         }
         var serviceData = await getServiceData();
@@ -340,7 +340,7 @@ function Workflow() {
                 error = 'Something is wrong';
             }
             if (error) {
-                alert('Error: ' + error);
+                showAlert('Error: ' + error);
                 return;
             }
             contactTitles = {};
@@ -527,7 +527,7 @@ function Workflow() {
                 error = 'Something is wrong';
             }
             if (error) {
-                alert('Error: ' + error);
+                showAlert('Error: ' + error);
                 return;
             }
             entityIds = {};
@@ -891,6 +891,8 @@ function Workflow() {
             if (response.data.geoCountryName) {
                 location.push(response.data.geoCountryName);
             }
+            profile.first_name = response.data.firstName;
+            profile.last_name = response.data.lastName;
             profile.location = location.length?location.join(', ', location):null;
         }
         return profile;
