@@ -42,7 +42,14 @@ function Workflow() {
                 if (!task.profile_id) {
                     continue;
                 }
-                task = await updateTaskProfile(task, task.connection_message);
+                var taskDetail = await updateTaskProfile(task, task.connection_message);
+                if (!taskDetail) {
+                    console.log("Profile not found, delete profile");
+                    this.deleteCampaignProfile(task.campaign_id, task.profile_id);
+                    return;
+
+                }
+                task = $.extend(task, taskDetail);
                 var invitationResult = null;
                 if (task.entity_id) {
                     var invited = false;
@@ -687,6 +694,9 @@ function Workflow() {
         var oldTask = Object.assign({}, task);
         if (!task.first_name || !task.last_name || !task.location) {
             var profileData = await parseProfileData(task.entity_id);
+            if (!profileData) {
+                return false;
+            }
             if (profileData) {
                 task.entity_id = profileData.entity_id;
                 if (!task.first_name) {
@@ -700,7 +710,7 @@ function Workflow() {
                 }
             }
         }
-        if (!task.company && checkMessagePlaceholder(msgText, 'company')) {
+        if (!task.company) {
             var companyList = await parseProfileCompanyList(task.public_id);
             if (companyList.length) {
                 task.company = companyList[0];
@@ -733,6 +743,9 @@ function Workflow() {
         }
         var response = await getData(url, headers);
         if (response && response.data) {
+            if (response.data.status == 404) {
+                return false;
+            }
             var location = [];
             if (response.data.geoLocationName) {
                 location.push(response.data.geoLocationName);
