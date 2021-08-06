@@ -42,12 +42,11 @@ function Workflow() {
                 if (!task.profile_id) {
                     continue;
                 }
-                var taskDetail = await updateTaskProfile(task, task.connection_message);
+                var taskDetail = await updateTaskProfile(task);
                 if (!taskDetail) {
                     console.log("Profile not found, delete profile");
                     this.deleteCampaignProfile(task.campaign_id, task.profile_id);
                     return;
-
                 }
                 task = $.extend(task, taskDetail);
                 var invitationResult = null;
@@ -104,7 +103,13 @@ function Workflow() {
                         return;
                     }
                 }
-                task = await updateTaskProfile(task, task.message);
+                var taskDetail = await updateTaskProfile(task);
+                if (!taskDetail) {
+                    console.log("Profile not found, delete profile");
+                    this.deleteCampaignProfile(task.campaign_id, task.profile_id);
+                    return;
+                }
+                task = $.extend(task, taskDetail);
                 if (task.entity_id && task.message) {
                     setProfileInWork(task.profile_id);
                     var message = replacePlaceHolders(task.message, task);
@@ -136,7 +141,6 @@ function Workflow() {
         do {
             var conversationByFrom = {};
             var lastMessageDates = [];
-            var txt = await getData(messagesUrl, await getHttpHeaders(), 'text');
             var json = await getData(messagesUrl, await getHttpHeaders());
             for (var i = 0; i < json.included.length; i ++) {
                 var included = json.included[i];
@@ -690,7 +694,7 @@ function Workflow() {
         await doRequest('profile/in_work/' + profileId);
     }
 
-    var updateTaskProfile = async function(task, msgText) {
+    var updateTaskProfile = async function(task) {
         var oldTask = Object.assign({}, task);
         if (!task.first_name || !task.last_name || !task.location) {
             var profileData = await parseProfileData(task.entity_id);

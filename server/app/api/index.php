@@ -551,7 +551,7 @@ class Api {
                                     $sendTime = ($previousFollowUpSentAt ? $previousFollowUpSentAt : $acceptedAt) + $followupRow['days_after_previous'] * 24 * 3600;
                                 }
                                 if ($sendTime <= time()) {
-                                    $followupList[$followupRow['campaign_id']][] = ['profile_id' => $profileRow['id'], 'public_id' => $profileRow['public_id'], 'followup_id' => $followupRow['id'], 'message' => $followupRow['message'], 'entity_id' => $profileRow['entity_id'], 'thread_id' => $profileRow['thread_id'], 'first_name' => $profileRow['first_name'],
+                                    $followupList[$followupRow['campaign_id']][] = ['campaign_id' => $followupRow['campaign_id'], 'profile_id' => $profileRow['id'], 'public_id' => $profileRow['public_id'], 'followup_id' => $followupRow['id'], 'message' => $followupRow['message'], 'entity_id' => $profileRow['entity_id'], 'thread_id' => $profileRow['thread_id'], 'first_name' => $profileRow['first_name'],
                                         'last_name' => $profileRow['last_name'], 'full_name' => $profileRow['first_name'] . ' ' . $profileRow['last_name'], 'company' => $profileRow['company'], 'custom_snippet_1' => $profileRow['custom_snippet_1'], 'custom_snippet_2' => $profileRow['custom_snippet_2'], 'custom_snippet_3' => $profileRow['custom_snippet_3'], 'attachments' => $followupRow['attachments'], 'send_at' => $sendTime, 'keep_sending' => (int)$keepSendingMessages, 'last_respond_at' => $profileRow['last_respond_at']];
 
                                 }
