@@ -181,8 +181,37 @@ $(async function(){
             people = people.slice(peopleStartingFrom, peopleStartingFrom + peopleCount);
             if (people.length > 0) {
                 var campaignId = $(this).attr('campaign_id');
-                workflow.editCampaign(campaignId, {'people': people}, function () {
-                    editPeopleCallback(campaignId, people);
+                workflow.editCampaign(campaignId, {'people': people}, async function (result) {
+                    if (result.errors) {
+                        if (result.entity_ids) {
+                            var existingPublicIds = {};
+                            for (var i = 0; i < result.entity_ids.length; i ++) {
+                                existingPublicIds[result.entity_ids[i]] = 1;
+                            }
+                            if (await showConfirm(result.errors[0])) {
+                                workflow.editCampaign(campaignId, {'people': people, 'allow_duplicate': 1}, function(result) {
+                                    if (result.errors) {
+                                        showErrors(result.errors);
+                                    }else {
+                                        editPeopleCallback(campaignId, people);
+                                    }
+                                });
+                            }else {
+                                $('.user-body__list .user-body__item').each(function(){
+                                    var $this = $(this);
+                                    if (existingPublicIds[$this.attr('entity_id')]) {
+                                        $this.css('background-color', 'red');
+                                    }else {
+                                        $this.css('background-color', 'none');
+                                    }
+                                });
+                            }
+                        }else {
+                            showErrors(result.errors);
+                        }
+                    }else {
+                        editPeopleCallback(campaignId, people);
+                    }
                 });
             }
         }

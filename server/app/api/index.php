@@ -244,6 +244,12 @@ class Api {
             }
         }
         if (isset($data['people'])) {
+            if (!isset($data['allow_duplicate'])) {
+                $existingEntityIds = $this->checkIfProfilesExist(array_column($data['people'], 'entity_id'));
+                if (count($existingEntityIds)) {
+                    return ['success' => 0, 'errors' => ['Some of profiles already exist for other campaign. Confirm if you want to add them anyway or click Cancel to review'], 'entity_ids' => $existingEntityIds];
+                }
+            }
             $data['people'] = array_combine(array_column($data['people'], 'entity_id'), array_values($data['people']));
             $profileIds = [];
             foreach ($data['people'] as $profile) {
@@ -958,7 +964,7 @@ class Api {
         $sql = "SELECT p.entity_id FROM `profile` AS `p`
             JOIN `campaign_profile` AS `cp` ON cp.profile_id = p.id
             JOIN `campaign` AS `c` ON c.id = cp.campaign_id AND c.user_id = $this->_userId
-            WHERE p.entity_id IN (?a)";
+            WHERE p.entity_id IN (?a) GROUP BY p.entity_id";
         return array_column($this->_db->getAll($sql, $entityIds), 'entity_id');
     }
 
