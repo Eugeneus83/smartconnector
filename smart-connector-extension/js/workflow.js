@@ -307,6 +307,8 @@ function Workflow() {
             if (paramName == 'keywords') {
                 if (!filter['keywords']) filter['keywords'] = [];
                 filter['keywords'] = fixedEncodeURIComponent(rawParamValue);
+            }else if (paramName == 'sid') {
+                filter['sid'] = fixedEncodeURIComponent(rawParamValue);
             }else if (paramName == 'origin') {
                 filter['origin'] = rawParamValue;
             }else {
@@ -715,9 +717,9 @@ function Workflow() {
             }
         }
         if (!task.company) {
-            var companyList = await parseProfileCompanyList(task.public_id);
-            if (companyList.length) {
-                task.company = companyList[0];
+            var profileCompany = await parseProfileCompany(task.public_id);
+            if (profileCompany) {
+                task.company = profileCompany;
             }
         }
 
@@ -766,9 +768,8 @@ function Workflow() {
         }
     }
 
-    var parseProfileCompanyList = async function(publicId) {
-        var companyList = {};
-        var url = linkedinDomain + '/voyager/api/identity/dash/profiles?q=memberIdentity&memberIdentity=' + publicId + '&decorationId=com.linkedin.voyager.dash.deco.identity.profile.FullProfileWithEntities-57';
+    var parseProfileCompany = async function(publicId) {
+        var url = linkedinDomain + '/voyager/api/identity/dash/profiles?q=memberIdentity&memberIdentity=maxime-destel&decorationId=com.linkedin.voyager.dash.deco.identity.profile.TopCardSupplementary-86';
         var headers = await getHttpHeaders();
         var pageInstanceId = getServiceData('page_instance_id');
         if (pageInstanceId) {
@@ -781,17 +782,10 @@ function Workflow() {
         for (var i = 0; i < json.included.length; i ++) {
             var included = json.included[i];
             if (included.$type == 'com.linkedin.voyager.dash.identity.profile.Position') {
-                var workAt;
-                if (included.dateRange && included.dateRange['end']) {
-                    workAt = new Date(included.dateRange['end'].year, included.dateRange['end'].month?included.dateRange['end'].month:1 - 1, 1, 0, 0, 0, 0);
-                }else {
-                    workAt = new Date();
-                }
-                companyList[included.companyName] = workAt.getTime();
+                return included.companyName;
             }
         }
-        companyList = sort(companyList);
-        return Object.keys(companyList);
+        return false;
     }
 
     var parsePublicId = async function(entityId) {
