@@ -769,7 +769,7 @@ function Workflow() {
     }
 
     var parseProfileCompany = async function(publicId) {
-        var url = linkedinDomain + '/voyager/api/identity/dash/profiles?q=memberIdentity&memberIdentity=maxime-destel&decorationId=com.linkedin.voyager.dash.deco.identity.profile.TopCardSupplementary-86';
+        var url = linkedinDomain + '/voyager/api/identity/dash/profiles?q=memberIdentity&memberIdentity=' + publicId + '&decorationId=com.linkedin.voyager.dash.deco.identity.profile.TopCardSupplementary-86';
         var headers = await getHttpHeaders();
         var pageInstanceId = getServiceData('page_instance_id');
         if (pageInstanceId) {
